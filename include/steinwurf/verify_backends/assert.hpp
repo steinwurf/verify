@@ -37,8 +37,8 @@
 // This is a bit funky, but works since we wrap `NDEBUG` to instead import a separate `stub.hpp` file.
 #define VERIFY_ASSERT_DEBUG(...) VERIFY_VFUNC(VERIFY_ASSERT, __VA_ARGS__)
 
-#define VERIFY_ASSERT1(expr) assert(expr)
-#define VERIFY_ASSERT2(expr, err) assert(expr && err)
+#define VERIFY_ASSERT1(expr) assert((expr))
+#define VERIFY_ASSERT2(expr, err) assert((expr) && err)
 
 // Brute force N-args with variadic macros.
 // TODO: Is there a better way to do this?
