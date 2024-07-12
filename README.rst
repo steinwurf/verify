@@ -26,3 +26,10 @@ Definitions
 
 * ``NDEBUG``: Disables assertions from getting validated. ``VERIFY_DEBUG`` will further be substituted away entirely with ``(void)0``.
 * ``NLIBASSERT``: Forces ``libassert`` to not be chosen as a backend.
+
+Limitations
+-----------
+
+Due to how the variadic macros are defined header only, you may only have up to
+63 arguments in a single call. If you have a usecase where you need more than
+this, please open an issue.
