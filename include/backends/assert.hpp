@@ -1,15 +1,23 @@
 #ifndef STEINWURF_VERIFY_BACKENDS_ASSERT_HPP
 #define STEINWURF_VERIFY_BACKENDS_ASSERT_HPP
 
-#include <cassert>
 #include "../verify_variadic_macro.hpp"
 
-// We only handle the non-`NDEBUG` case, so we only consider the debug case.
-#define VERIFY_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
-#define VERIFY_DEBUG_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
+#ifndef NDEBUG
+    #include <cassert>
 
-#define VERIFY_IMPL1(expr) assert((expr))
-#define VERIFY_IMPL2(expr, err) assert((expr) && err)
+    #define VERIFY_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
+    #define VERIFY_DEBUG_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
+
+    #define VERIFY_IMPL1(expr) assert((expr))
+    #define VERIFY_IMPL2(expr, err) assert((expr) && err)
+#else
+    #define VERIFY_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
+    #define VERIFY_DEBUG_IMPL(...) ((void)0)
+
+    #define VERIFY_IMPL1(expr) ((void)(expr))
+    #define VERIFY_IMPL2(expr, err) VERIFY_IMPL1(expr)
+#endif // NDEBUG
 
 // Brute force N-args with variadic macros.
 // TODO: Is there a better way to do this?

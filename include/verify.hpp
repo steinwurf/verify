@@ -1,15 +1,13 @@
 #ifndef STEINWURF_VERIFY_HPP
 #define STEINWURF_VERIFY_HPP
 
-#ifndef NLIBASSERT
+#ifdef NLIBASSERT
+    #include "backends/assert.hpp"
+#elif __cplusplus > 201402L
     #include "backends/libassert.hpp"
 #else
-    #ifndef NDEBUG
-        #include "backends/assert.hpp"
-    #else
-        #include "backends/stub.hpp"
-    #endif // NDEBUG
-#endif // NLIBASSERT
+    #include "backends/assert.hpp"
+#endif
 
 #define VERIFY(...) VERIFY_IMPL(__VA_ARGS__)
 #define VERIFY_DEBUG(...) VERIFY_DEBUG_IMPL(__VA_ARGS__)
