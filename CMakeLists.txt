@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.12)
 
 project(
-    SteinwurfVerify
+    verify
     VERSION 0.1.0
     DESCRIPTION "a meta assertion library focused on high compatibility"
     HOMEPAGE_URL "https://github.com/steinwurf/verify"
