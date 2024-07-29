@@ -10,7 +10,6 @@ project(
 
 find_package(Python COMPONENTS Interpreter)
 
-
 # Use waf to resolve dependencies
 if(NOT DEFINED STEINWURF_RESOLVE)
     message(STATUS "Resolving dependencies...")
@@ -27,19 +26,19 @@ if(NOT DEFINED STEINWURF_RESOLVE)
     set(STEINWURF_TOP_NAME ${PROJECT_NAME})
 endif()
 
-add_subdirectory("${STEINWURF_RESOLVE}/libassert" libassert)
-
 add_library(${PROJECT_NAME} STATIC src/verify.cpp)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include
-                                                    )
-if (NOT NDEBUG)
+target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+if (NOT STEINWURF_VERIFY_NO_LIBASSERT)
+    add_subdirectory("${STEINWURF_RESOLVE}/libassert" libassert)
     target_include_directories(${PROJECT_NAME} INTERFACE ${STEINWURF_RESOLVE}/libassert-source/include)
     add_dependencies(${PROJECT_NAME} libassert::assert)
     target_link_libraries(${PROJECT_NAME} libassert::assert)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
+else()
+    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_NO_LIBASSERT)
 endif()
-
-
 
 if (${PROJECT_IS_TOP_LEVEL})
     add_executable(${PROJECT_NAME}_example example.cpp)

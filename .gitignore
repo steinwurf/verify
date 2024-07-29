@@ -1,7 +1,7 @@
 cmake_build
-compile_commands.json
 build
 resolve_symlinks
+resolved_dependencies
 .waf**
 coverage
 install/bin
@@ -11,4 +11,4 @@ build_current
 .cache
 .waf*
 .lock-waf*
-.lock-waf_linux_buil
+.lock-waf_linux_build

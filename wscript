@@ -10,7 +10,7 @@ import os.path
 
 from waflib.Build import BuildContext
 
-APPNAME = "assure"
+APPNAME = "verify"
 VERSION = "1.0.0"
 
 
@@ -25,7 +25,7 @@ def build(bld):
         source=["src/verify.cpp"],
         export_includes=[bld.path.find_dir("include")],
         includes=[bld.path.find_dir("include")],
-        use=["libassert"],
+        use=["assert", "cpptrace", "dwarf", "zstd"],
     )
 
     if bld.is_toplevel():

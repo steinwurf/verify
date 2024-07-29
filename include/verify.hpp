@@ -4,7 +4,7 @@
 #ifdef NDEBUG
     #include "backends/stub.hpp"
 #else
-    #ifdef NLIBASSERT
+    #ifdef STEINWURF_VERIFY_NO_LIBASSERT
         #include "backends/assert.hpp"
     #elif __cplusplus > 201402L
         #include "backends/libassert.hpp"
