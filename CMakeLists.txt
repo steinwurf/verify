@@ -17,15 +17,24 @@ else()
       GIT_REPOSITORY https://github.com/jeremy-rifkin/libassert.git
       GIT_TAG        v2.1.0
     )
-    FetchContent_MakeAvailable(libassert)
 endif()
 
+#add_library(verify INTERFACE)
 
 add_executable(example example.cpp)
 add_executable(steinwurf::example ALIAS example)
-target_link_libraries(example PRIVATE libassert::assert)
-target_compile_features(example PRIVATE cxx_std_20)
-target_compile_definitions(example PRIVATE LIBASSERT_PREFIX_ASSERTIONS)
+set_property(TARGET example PROPERTY CXX_STANDARD 17)
+
+# TODO: Do as a function?
+get_target_property(example_CXX_STANDARD example CXX_STANDARD)
+if(example_CXX_STANDARD VERSION_GREATER_EQUAL 17.0.0)
+    # Error (We only support C++>=17). Libassert has it.
+    message("Building with libassert support...")
+    FetchContent_MakeAvailable(libassert)
+    target_link_libraries(example PRIVATE libassert::assert)
+    # We only need the implementation of libassert, tell libassert to not create any ASSERT prefixes for us.
+    target_compile_definitions(example PRIVATE LIBASSERT_PREFIX_ASSERTIONS)
+endif()
 
 # TODO: Remove these from the top level.
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wpedantic")
