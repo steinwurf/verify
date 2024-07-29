@@ -8,36 +8,41 @@ project(
     LANGUAGES CXX
 )
 
-if(STEINWURF_VERIFY_USE_EXTERNAL_LIBASSERT)
-    find_package(libassert REQUIRED)
-else()
-    include(FetchContent)
-    FetchContent_Declare(
-      libassert
-      GIT_REPOSITORY https://github.com/jeremy-rifkin/libassert.git
-      GIT_TAG        v2.1.0
-    )
+find_package(Python COMPONENTS Interpreter)
+
+
+# Use waf to resolve dependencies
+if(NOT DEFINED STEINWURF_RESOLVE)
+    message(STATUS "Resolving dependencies...")
+    execute_process(
+    COMMAND ${Python_EXECUTABLE} waf resolve ${STEINWURF_RESOLVE_OPTIONS}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    RESULT_VARIABLE STATUS)
+
+    if(STATUS AND NOT STATUS EQUAL 0)
+        message(FATAL_ERROR "Failed: ${STATUS}")
+    endif()
+
+    set(STEINWURF_RESOLVE "${CMAKE_CURRENT_SOURCE_DIR}/resolve_symlinks")
+    set(STEINWURF_TOP_NAME ${PROJECT_NAME})
 endif()
 
-#add_library(verify INTERFACE)
+add_subdirectory("${STEINWURF_RESOLVE}/libassert" libassert)
 
-add_executable(example example.cpp)
-add_executable(steinwurf::example ALIAS example)
-set_property(TARGET example PROPERTY CXX_STANDARD 17)
-
-# TODO: Do as a function?
-get_target_property(example_CXX_STANDARD example CXX_STANDARD)
-if(example_CXX_STANDARD VERSION_GREATER_EQUAL 17.0.0)
-    # Error (We only support C++>=17). Libassert has it.
-    message("Building with libassert support...")
-    FetchContent_MakeAvailable(libassert)
-    target_link_libraries(example PRIVATE libassert::assert)
-    # We only need the implementation of libassert, tell libassert to not create any ASSERT prefixes for us.
-    target_compile_definitions(example PRIVATE LIBASSERT_PREFIX_ASSERTIONS)
+add_library(${PROJECT_NAME} STATIC src/verify.cpp)
+target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
+target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include
+                                                    )
+if (NOT NDEBUG)
+    target_include_directories(${PROJECT_NAME} INTERFACE ${STEINWURF_RESOLVE}/libassert-source/include)
+    add_dependencies(${PROJECT_NAME} libassert::assert)
+    target_link_libraries(${PROJECT_NAME} libassert::assert)
 endif()
 
-# TODO: Remove these from the top level.
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -Wextra -Wpedantic")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
 
-install(TARGETS example)
+
+if (${PROJECT_IS_TOP_LEVEL})
+    add_executable(${PROJECT_NAME}_example example.cpp)
+    target_link_libraries(${PROJECT_NAME}_example ${PROJECT_NAME})
+    target_compile_features(${PROJECT_NAME}_example PRIVATE cxx_std_17)
+endif()
