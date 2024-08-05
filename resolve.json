@@ -12,7 +12,7 @@
         "name": "libassert",
         "resolver": "git",
         "method": "checkout",
-        "checkout": "wip",
+        "checkout": "1.0.0",
         "sources": [
             "github.com/steinwurf/libassert.git"
         ]
