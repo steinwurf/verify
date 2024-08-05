@@ -6,4 +6,8 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+1.0.0
+-----
 * Major: Initial release
