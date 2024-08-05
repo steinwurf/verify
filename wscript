@@ -31,7 +31,7 @@ def build(bld):
     if bld.is_toplevel():
         bld.program(
             target="example",
-            features="cxx",
+            features="cxx test",
             source="example.cpp",
             use=["verify"],
         )
