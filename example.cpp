@@ -9,12 +9,11 @@ void zoog(const std::map<std::string, int> &map) {
 }
 
 int main() {
-  std::map<std::string, int> m{{"test", 1}};
+  std::map<std::string, int> example_map{{"test", 1}, {"foo", 2}};
+  zoog(example_map);
   int a = 42;
-  VERIFY(a == 21);
   VERIFY(a = 21);
   VERIFY(a == 21);
-  zoog(m);
   std::cout << "Hello World!" << a << "\n";
   return 0;
 }
