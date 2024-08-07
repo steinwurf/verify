@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+1.1.0
+-----
 * Minor: Update libassert wrapper to version 2 to avoid upstream conflicts when building.
 * Minor: Fix incorrect function name being shown when calling VERIFY.
 
