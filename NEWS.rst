@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Minor: Fix incorrect function name being shown when calling VERIFY.
 
 1.0.0
 -----
