@@ -11,8 +11,8 @@
     {
         "name": "libassert",
         "resolver": "git",
-        "method": "checkout",
-        "checkout": "1.0.0",
+        "method": "semver",
+        "major": 2,
         "sources": [
             "github.com/steinwurf/libassert.git"
         ]
