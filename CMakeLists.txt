@@ -28,13 +28,22 @@ endif()
 
 add_library(${PROJECT_NAME} STATIC src/verify.cpp)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
-target_include_directories(${PROJECT_NAME} INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(${PROJECT_NAME} INTERFACE include)
+add_library(steinwurf::verify ALIAS ${PROJECT_NAME})
+
+install(
+    DIRECTORY ./include
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include
+    FILES_MATCHING
+    PATTERN *.hpp)
+
 
 if (NOT STEINWURF_VERIFY_NO_LIBASSERT)
-    add_subdirectory("${STEINWURF_RESOLVE}/libassert" libassert)
-    target_include_directories(${PROJECT_NAME} INTERFACE ${STEINWURF_RESOLVE}/libassert-source/include)
-    add_dependencies(${PROJECT_NAME} libassert::assert)
-    target_link_libraries(${PROJECT_NAME} libassert::assert)
+    if (NOT TARGET steinwurf::libassert)
+        add_subdirectory("${STEINWURF_RESOLVE}/libassert" libassert)
+    endif()
+
+    target_link_libraries(${PROJECT_NAME} PUBLIC steinwurf::libassert)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
 else()
     target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_NO_LIBASSERT)
@@ -42,6 +51,6 @@ endif()
 
 if (${PROJECT_IS_TOP_LEVEL})
     add_executable(${PROJECT_NAME}_example example.cpp)
-    target_link_libraries(${PROJECT_NAME}_example ${PROJECT_NAME})
+    target_link_libraries(${PROJECT_NAME}_example steinwurf::verify steinwurf::libassert)
     target_compile_features(${PROJECT_NAME}_example PRIVATE cxx_std_17)
 endif()
