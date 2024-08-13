@@ -55,7 +55,29 @@ if(STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
 if (${PROJECT_IS_TOP_LEVEL})
-    add_executable(${PROJECT_NAME}_example example.cpp)
-    target_link_libraries(${PROJECT_NAME}_example ${PROJECT_NAME})
-    target_compile_features(${PROJECT_NAME}_example PRIVATE cxx_std_17)
+   enable_testing()
+
+   if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
+       # For Windows: Prevent overriding the parent project's compiler/linker
+       # settings
+       set(gtest_force_shared_crt
+               ON
+               CACHE BOOL "" FORCE)
+   endif ()
+
+   # Google Test dependency
+   add_subdirectory("${STEINWURF_RESOLVE}/gtest-source" gtest_main EXCLUDE_FROM_ALL)
+   # Define library
+   file(GLOB_RECURSE verify_test_sources test/**/*.cpp)
+
+   # Build test executable
+   add_executable(verify_tests ${verify_test_sources})
+   target_link_libraries(verify_tests steinwurf::verify)
+   target_link_libraries(verify_tests gtest_main)
+
+   # Make sure we compile with C++17 and do not use compiler specific extensions
+   set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
+   set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
+
+   add_test(verify_tests verify_tests)
 endif()

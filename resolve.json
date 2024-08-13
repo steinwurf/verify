@@ -9,6 +9,14 @@
         ]
     },
     {
+        "name": "gtest",
+        "resolver": "git",
+        "internal": true,
+        "method": "semver",
+        "major": 5,
+        "source": "github.com/steinwurf/gtest.git"
+    },
+    {
         "name": "libassert",
         "resolver": "git",
         "method": "semver",

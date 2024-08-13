@@ -30,10 +30,10 @@ def build(bld):
 
     if bld.is_toplevel():
         bld.program(
-            target="example",
             features="cxx test",
-            source="example.cpp",
-            use=["verify"],
+            source=bld.path.ant_glob("test/**/*.cpp"),
+            target="verify_tests",
+            use=["verify", "gtest"],
         )
 
 
