@@ -26,6 +26,11 @@ if(NOT DEFINED STEINWURF_RESOLVE)
     set(STEINWURF_TOP_NAME ${PROJECT_NAME})
 endif()
 
+if(NOT DEFINED STEINWURF_VERIFY_USE_LIBASSERT)
+    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, defaulting to YES")
+    set(STEINWURF_VERIFY_USE_LIBASSERT YES)
+endif()
+
 add_library(${PROJECT_NAME} STATIC src/verify.cpp)
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 target_include_directories(${PROJECT_NAME} INTERFACE include)
@@ -45,8 +50,7 @@ if (NOT STEINWURF_VERIFY_NO_LIBASSERT)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC steinwurf::libassert)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
-else()
-    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_NO_LIBASSERT)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
 if (${PROJECT_IS_TOP_LEVEL})
