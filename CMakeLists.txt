@@ -32,7 +32,8 @@ if(NOT DEFINED STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
 add_library(${PROJECT_NAME} STATIC src/verify.cpp)
-target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_EXTENSIONS OFF)
 target_include_directories(${PROJECT_NAME} INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
