@@ -6,7 +6,8 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Major: Rename toggle STEINWURF_VERIFY_NO_LIBASSERT to STEINWURF_VERIFY_USE_LIBASSERT for clarity.
+* Minor: Correctly expose, link and import libassert package.
 
 1.1.0
 -----
