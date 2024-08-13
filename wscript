@@ -35,3 +35,12 @@ def build(bld):
             source="example.cpp",
             use=["verify"],
         )
+
+
+def prepare_release(ctx):
+    # Rewrite versions
+    with ctx.rewrite_file(filename="CMakeLists.txt") as f:
+        pattern = r"VERSION \d+\.\d+\.\d+ # Managed by waf"
+        replacement = "VERSION {} # Managed by waf".format(VERSION)
+
+        f.regex_replace(pattern=pattern, replacement=replacement)
