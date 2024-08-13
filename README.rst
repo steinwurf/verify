@@ -1,8 +1,9 @@
 Verify
 ======
 
-Verify is a meta assertion library using ``libassert`` with a graceful fallback
-to ``cassert`` when on unsupported platforms.
+Verify is a meta assertion library using ``libassert`` with a builtin fallback
+to ``cassert`` when required for unsupported platforms.
+
 
 Usage
 -----
@@ -15,17 +16,25 @@ There's three primary ways to call Verify:
 
 These do respectively:
 
-* ``condition``: holds the boolean test. If this returns false it will trigger an assertion in debug builds.
-* ``error_string``: can hold an extra human readable error message to explain what occurred, and will get attached to the assertion statement.
-* ``variables``: can hold a list of extra variables and their currently held data to be printed when the backend supports it.
+* ``condition``: holds the boolean test. If this returns false it will trigger
+  an assertion. This will always get evaluated regardless of build type.
+* ``error_string``: can hold an extra human readable error message to explain
+  what occurred.
+* ``variables``: can hold a list of extra variables and will print their
+  currently held data when the backend supports it (like libassert).
 
-There's also a `VERIFY_DEBUG` macro of the same structure. Which will not get evaluated in release builds (given `NDEBUG`).
+There's an alternative `VERIFY_DEBUG` macro with the same structure, which
+notably will not get evaluated at all in `NDEBUG` builds.
 
-Definitions
------------
 
-* ``NDEBUG``: Disables assertions from getting validated. ``VERIFY_DEBUG`` will further be substituted away entirely with ``(void)0``.
-* ``NLIBASSERT``: Forces ``libassert`` to not be chosen as a backend.
+Functionality
+-------------
+
+* When `NDEBUG` is not defined, both `VERIFY` and `VERIFY_DEBUG` will raise
+  assertions.
+* When `NDEBUG` is defined, `VERIFY` will evaluate the statement, but will not
+  raise on its result. `VERIFY_DEBUG` will not evaluate the assertion at all.
+
 
 Limitations
 -----------

@@ -5,10 +5,15 @@
 #include <cassert>
 
 #define VERIFY_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
-#define VERIFY_DEBUG_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
 
-#define VERIFY_IMPL1(expr) assert((expr))
-#define VERIFY_IMPL2(expr, err) assert((expr) && err)
+#ifndef NDEBUG
+    #define VERIFY_DEBUG_IMPL(...) VERIFY_VFUNC(VERIFY_IMPL, __VA_ARGS__)
+#else
+    #define VERIFY_DEBUG_IMPL(...) ((void)0)
+#endif // NDEBUG
+
+#define VERIFY_IMPL1(expr) ((void)(expr)); assert((expr))
+#define VERIFY_IMPL2(expr, err) ((void)(expr)); assert((expr) && err)
 
 // Brute force N-args with variadic macros.
 // TODO: Is there a better way to do this?
