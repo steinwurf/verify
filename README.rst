@@ -30,10 +30,10 @@ notably will not get evaluated at all in `NDEBUG` builds.
 Functionality
 -------------
 
-* When `NDEBUG` is not defined, both `VERIFY` and `VERIFY_DEBUG` will raise
+* When ``NDEBUG`` is not defined, both ``VERIFY`` and ``VERIFY_DEBUG`` will raise
   assertions.
-* When `NDEBUG` is defined, `VERIFY` will evaluate the statement, but will not
-  raise on its result. `VERIFY_DEBUG` will not evaluate the assertion at all.
+* When ``NDEBUG`` is defined, ``VERIFY`` will evaluate the statement, but will not
+  raise on its result. ``VERIFY_DEBUG`` will not evaluate the assertion at all.
 
 
 Limitations
