@@ -6,6 +6,7 @@ every change, see the git log.
 
 Latest
 ------
+* Major: Restructure include folder into verify subdirectory.
 * Major: Rename toggle STEINWURF_VERIFY_NO_LIBASSERT to STEINWURF_VERIFY_USE_LIBASSERT for clarity.
 * Minor: Correctly expose, link and import libassert package.
 
