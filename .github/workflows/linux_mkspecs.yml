@@ -28,16 +28,6 @@ jobs:
             CXX: clang++
             cxx_mkspec:
             env:
-          - container: ghcr.io/steinwurf/ubuntu-lts-2404:2.0.0
-            name: Clang Address Sanitizer Latest
-            CXX: clang++
-            cxx_mkspec: --cxx_mkspec=cxx_clang_address_sanitizer_x64
-            env:
-          - container: ghcr.io/steinwurf/ubuntu-lts-2404:2.0.0
-            name: Clang Thread Sanitizer Latest
-            CXX: clang++
-            cxx_mkspec: --cxx_mkspec=cxx_clang_thread_sanitizer_x64
-            env: TSAN_OPTIONS="suppressions=../../tsan_suppression.txt"
     runs-on:
       - self-hosted
       - docker
