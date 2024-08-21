@@ -102,10 +102,5 @@ if (${PROJECT_IS_TOP_LEVEL})
     set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
     set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
 
-    # CTest needs an extra helping hand to find MSVC complied exes.
-    if(MSVC)
-        add_test(NAME verify_tests COMMAND verify_tests.exe)
-    else()
-        add_test(NAME verify_tests COMMAND verify_tests)
-    endif()
+    add_test(verify_tests verify_tests)
 endif()
