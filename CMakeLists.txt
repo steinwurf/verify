@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 
 project(
     verify
@@ -7,6 +7,14 @@ project(
     HOMEPAGE_URL "https://github.com/steinwurf/verify"
     LANGUAGES CXX
 )
+
+if(MSVC)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        add_compile_options("/MTd")
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+        add_compile_options("/MT")
+    endif()
+endif()
 
 find_package(Python COMPONENTS Interpreter)
 
@@ -56,13 +64,6 @@ install(
     PATTERN *.hpp)
 
 if (MSVC)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        set(STEINWURF_VERIFY_MSVC_MT_TYPE "/MTd")
-    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-        set(STEINWURF_VERIFY_MSVC_MT_TYPE "/MT")
-    endif()
-
-    target_compile_options(${PROJECT_NAME} PUBLIC ${STEINWURF_VERIFY_MSVC_MT_TYPE})
     # Use the conforming preprocessor for MSVC
     target_compile_options(${PROJECT_NAME} PUBLIC "/Zc:preprocessor")
 endif()
@@ -97,12 +98,7 @@ if (${PROJECT_IS_TOP_LEVEL})
     target_link_libraries(verify_tests PUBLIC steinwurf::verify)
     target_link_libraries(verify_tests PUBLIC gtest_main)
 
-    if(MSVC)
-        target_compile_options(verify_tests PUBLIC ${STEINWURF_VERIFY_MSVC_MT_TYPE})
-    endif()
-
-
-# Make sure we compile with C++17 and do not use compiler specific extensions
+    # Make sure we compile with C++17 and do not use compiler specific extensions
     set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
     set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
 
