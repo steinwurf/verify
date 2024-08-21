@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <map>
 #include <string>
-#include <verify.hpp>
+#include <verify/verify.hpp>
 
 TEST(test_verify, simple) {
   int a = 42;

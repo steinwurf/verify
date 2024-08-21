@@ -2,12 +2,12 @@
 #define STEINWURF_VERIFY_HPP
 
 #ifdef NDEBUG
-#include "verify/backends/stub.hpp"
+#include "backends/stub.hpp"
 #else
 #ifdef STEINWURF_VERIFY_USE_LIBASSERT
-#include "verify/backends/libassert.hpp"
+#include "backends/libassert.hpp"
 #else
-#include "verify/backends/assert.hpp"
+#include "backends/assert.hpp"
 #endif // STEINWURF_VERIFY_USE_LIBASSERT
 #endif // NDEBUG
 
