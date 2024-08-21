@@ -98,7 +98,7 @@ if (${PROJECT_IS_TOP_LEVEL})
     target_link_libraries(verify_tests PUBLIC gtest_main)
 
     if(MSVC)
-        target_compile_options(${PROJECT_NAME} PUBLIC ${STEINWURF_VERIFY_MSVC_MT_TYPE})
+        target_compile_options(verify_tests PUBLIC ${STEINWURF_VERIFY_MSVC_MT_TYPE})
     endif()
 
 
