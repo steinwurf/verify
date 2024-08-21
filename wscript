@@ -19,13 +19,18 @@ def configure(conf):
 
 
 def build(bld):
+    if platform.system() == "Windows":
+        use = []
+    else:
+        use = ["assert", "cpptrace", "dwarf", "zstd"]
+
     bld.stlib(
         target="verify",
         features="cxx",
         source=["src/verify.cpp"],
         export_includes=[bld.path.find_dir("include")],
         includes=[bld.path.find_dir("include")],
-        use=["assert", "cpptrace", "dwarf", "zstd"],
+        use=use,
     )
 
     if bld.is_toplevel():
