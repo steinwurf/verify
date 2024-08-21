@@ -55,6 +55,18 @@ install(
     FILES_MATCHING
     PATTERN *.hpp)
 
+if (MSVC)
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(STEINWURF_VERIFY_MSVC_MT_TYPE "/MTd")
+    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+        set(STEINWURF_VERIFY_MSVC_MT_TYPE "/MT")
+    endif()
+
+    target_compile_options(${PROJECT_NAME} PUBLIC ${STEINWURF_VERIFY_MSVC_MT_TYPE})
+    # Use the conforming preprocessor for MSVC
+    target_compile_options(${PROJECT_NAME} PUBLIC "/Zc:preprocessor")
+endif()
+
 if(STEINWURF_VERIFY_USE_LIBASSERT)
     if (NOT TARGET steinwurf::libassert)
         add_subdirectory("${STEINWURF_RESOLVE}/libassert" libassert EXCLUDE_FROM_ALL)
@@ -82,12 +94,22 @@ if (${PROJECT_IS_TOP_LEVEL})
 
 # Build test executable
     add_executable(verify_tests ${verify_test_sources})
-    target_link_libraries(verify_tests steinwurf::verify)
-    target_link_libraries(verify_tests gtest_main)
+    target_link_libraries(verify_tests PUBLIC steinwurf::verify)
+    target_link_libraries(verify_tests PUBLIC gtest_main)
+
+    if(MSVC)
+        target_compile_options(${PROJECT_NAME} PUBLIC ${STEINWURF_VERIFY_MSVC_MT_TYPE})
+    endif()
+
 
 # Make sure we compile with C++17 and do not use compiler specific extensions
     set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
     set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
 
-    add_test(verify_tests verify_tests)
+    # CTest needs an extra helping hand to find MSVC complied exes.
+    if(MSVC)
+        add_test(NAME verify_tests COMMAND verify_tests.exe)
+    else()
+        add_test(NAME verify_tests COMMAND verify_tests)
+    endif()
 endif()
