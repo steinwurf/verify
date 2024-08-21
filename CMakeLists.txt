@@ -27,8 +27,17 @@ if(NOT DEFINED STEINWURF_RESOLVE)
 endif()
 
 if(NOT DEFINED STEINWURF_VERIFY_USE_LIBASSERT)
-    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, defaulting to YES")
-    set(STEINWURF_VERIFY_USE_LIBASSERT YES)
+    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, using autodetection")
+    if(WIN32)
+        # Currently libassert doesn't seem to build against windows with our wrapping
+        # https://github.com/steinwurf/libassert/pull/1
+        set(STEINFWURF_VERIFY_USE_LIBASSERT NO)
+        message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to NO due to WIN32 environment")
+    else()
+        # MacOS / *UNIX-likes build correctly with libassert. Enable these by default.
+        set(STEINWURF_VERIFY_USE_LIBASSERT YES)
+        message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to YES")
+    endif()
 endif()
 
 add_library(${PROJECT_NAME} STATIC src/verify.cpp)
@@ -56,29 +65,29 @@ if(STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
 if (${PROJECT_IS_TOP_LEVEL})
-   enable_testing()
+    enable_testing()
 
-   if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
+    if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
        # For Windows: Prevent overriding the parent project's compiler/linker
        # settings
        set(gtest_force_shared_crt
                ON
                CACHE BOOL "" FORCE)
-   endif ()
+    endif ()
 
-   # Google Test dependency
-   add_subdirectory("${STEINWURF_RESOLVE}/gtest-source" gtest_main EXCLUDE_FROM_ALL)
-   # Define library
-   file(GLOB_RECURSE verify_test_sources test/**/*.cpp)
+# Google Test dependency
+    add_subdirectory("${STEINWURF_RESOLVE}/gtest-source" gtest_main EXCLUDE_FROM_ALL)
+# Define library
+    file(GLOB_RECURSE verify_test_sources test/**/*.cpp)
 
-   # Build test executable
-   add_executable(verify_tests ${verify_test_sources})
-   target_link_libraries(verify_tests steinwurf::verify)
-   target_link_libraries(verify_tests gtest_main)
+# Build test executable
+    add_executable(verify_tests ${verify_test_sources})
+    target_link_libraries(verify_tests steinwurf::verify)
+    target_link_libraries(verify_tests gtest_main)
 
-   # Make sure we compile with C++17 and do not use compiler specific extensions
-   set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
-   set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
+# Make sure we compile with C++17 and do not use compiler specific extensions
+    set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
+    set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
 
-   add_test(verify_tests verify_tests)
+    add_test(verify_tests verify_tests)
 endif()
