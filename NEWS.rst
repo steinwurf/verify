@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+3.0.2
+-----
 * Patch: Add to tag-registry again
 
 3.0.1
