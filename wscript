@@ -19,7 +19,7 @@ def configure(conf):
 
 
 def build(bld):
-    if platform.system() == "Windows":
+    if platform.system() == "windows":
         use = []
     else:
         use = ["assert", "cpptrace", "dwarf", "zstd"]
