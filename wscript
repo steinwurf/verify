@@ -91,6 +91,7 @@ def build(bld):
             source=bld.path.ant_glob("test/**/*.cpp"),
             target="verify_tests",
             use=["verify", "gtest"],
+            cxxflags=cxxflags,
         )
 
 
