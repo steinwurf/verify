@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Major: Moved ``verify.hpp`` to ``verify/verify.hpp`` for windows support.
 
 2.0.0
 -----
