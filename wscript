@@ -71,9 +71,7 @@ def build(bld):
         use += ["zstd"]
     else:
         cxxflags = "/Zc:preprocessor"
-        use += ["DBGHELP"]
-
-    
+        use += []
 
     bld.stlib(
         target="verify",
