@@ -35,17 +35,18 @@ if(NOT DEFINED STEINWURF_RESOLVE)
 endif()
 
 if(NOT DEFINED STEINWURF_VERIFY_USE_LIBASSERT)
-    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, using autodetection")
-    if(WIN32)
-        # Currently libassert doesn't seem to build against windows with our wrapping
-        # https://github.com/steinwurf/libassert/pull/1
-        set(STEINFWURF_VERIFY_USE_LIBASSERT NO)
-        message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to NO due to WIN32 environment")
-    else()
-        # MacOS / *UNIX-likes build correctly with libassert. Enable these by default.
-        set(STEINWURF_VERIFY_USE_LIBASSERT YES)
-        message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to YES")
-    endif()
+    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, using YES")
+    #if(WIN32)
+    #    # Currently libassert doesn't seem to build against windows with our wrapping
+    #    # https://github.com/steinwurf/libassert/pull/1
+    #    set(STEINFWURF_VERIFY_USE_LIBASSERT NO)
+    #    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to NO due to WIN32 environment")
+    #else()
+    #    # MacOS / *UNIX-likes build correctly with libassert. Enable these by default.
+    #    set(STEINWURF_VERIFY_USE_LIBASSERT YES)
+    #    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to YES")
+    #endif()
+    set(STEINWURF_VERIFY_USE_LIBASSERT YES)
 endif()
 
 add_library(${PROJECT_NAME} STATIC src/verify.cpp)
@@ -69,10 +70,10 @@ if (MSVC)
 endif()
 
 if(STEINWURF_VERIFY_USE_LIBASSERT)
-    if (NOT TARGET steinwurf::libassert)
-        add_subdirectory("${STEINWURF_RESOLVE}/libassert" libassert EXCLUDE_FROM_ALL)
+    if (NOT TARGET libassert::assert)
+        add_subdirectory("${STEINWURF_RESOLVE}/libassert-source" libassert EXCLUDE_FROM_ALL)
     endif()
-    target_link_libraries(${PROJECT_NAME} PUBLIC steinwurf::libassert)
+    target_link_libraries(${PROJECT_NAME} PUBLIC libassert::assert)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
     target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
@@ -88,12 +89,12 @@ if (${PROJECT_IS_TOP_LEVEL})
                CACHE BOOL "" FORCE)
     endif ()
 
-# Google Test dependency
+    # Google Test dependency
     add_subdirectory("${STEINWURF_RESOLVE}/gtest-source" gtest_main EXCLUDE_FROM_ALL)
-# Define library
+    # Define library
     file(GLOB_RECURSE verify_test_sources test/**/*.cpp)
 
-# Build test executable
+    # Build test executable
     add_executable(verify_tests ${verify_test_sources})
     target_link_libraries(verify_tests PUBLIC steinwurf::verify)
     target_link_libraries(verify_tests PUBLIC gtest_main)
