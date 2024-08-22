@@ -16,6 +16,10 @@ VERSION = "3.0.2"
 
 def configure(conf):
     conf.set_cxx_std(17)
+    if conf.env.COMPILER_CXX == 'msvc':
+        conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
+    else:
+        conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
 
 
 def build(bld):
@@ -45,6 +49,19 @@ def build(bld):
         source=src_dir,
     )
 
+    zlib_src_dir = bld.dependency_node("zlib-source");
+    zlib_build_dir = bld.bldnode.make_node("zlib_build")
+    zlib_install_dir = zlib_build_dir.make_node("install")
+    zlib_include_dir = zlib_install_dir.make_node("include")
+    zlib_lib_dir = zlib_install_dir.make_node("lib")
+    zlib_lib64_dir = zlib_install_dir.make_node("lib64")
+    bld(
+        rule=CMakeBuildTask,
+        target=zlib_build_dir.make_node("flag.lock"),
+        install_dir=zlib_install_dir,
+        source=zlib_src_dir,
+    )
+
     # once it is done create a second build group
     bld.add_group()
 
@@ -56,6 +73,8 @@ def build(bld):
     if not platform.system() == "Windows":
         bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
         use += ["dwarf"]
+        bld.read_stlib("z", paths=[zlib_lib_dir, zlib_lib64_dir], export_includes=[zlib_include_dir])
+        use += ["z"]
         bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
         use += ["zstd"]
     else:
@@ -127,6 +146,8 @@ def CMakeBuildTask(task):
     # SRT cmake flags
     flags += [
         f"-DCMAKE_BUILD_TYPE={CMAKE_BUILD_TYPE}",
+        f"-DCMAKE_INSTALL_PREFIX={install_dir}",
+        f"-DZLIB_BUILD_EXAMPLES=NO",
     ]
     flags = " ".join(flags)
 
