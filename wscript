@@ -26,7 +26,6 @@ def build(bld):
 
     # Declare the temporary build directory for the external library
     # it is best to keep it under the project build directory
-    # TODO: Figure out how to make this temporary again.
     build_dir = bld.bldnode.make_node("libassert_build")
 
     # Declare the install directory for the external library
@@ -49,28 +48,17 @@ def build(bld):
     # once it is done create a second build group
     bld.add_group()
 
-    #if platform.system() == "Windows":
-    #    lib_name = "assert"
-    #else:
-    #    lib_name = "assert"
-
     bld.read_stlib("assert", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
     bld.read_stlib("cpptrace", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
 
     use = ["assert", "cpptrace"];
 
     if not platform.system() == "Windows":
-        bld.read_stlib(
-            "dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir]
-        )
+        bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
         use += ["dwarf"]
-        bld.read_stlib(
-            "zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir]
-        )
-        cxxflags = ""
+        bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
         use += ["zstd"]
     else:
-        cxxflags = "/Zc:preprocessor"
         use += []
 
     bld.stlib(
@@ -79,7 +67,6 @@ def build(bld):
         source=["src/verify.cpp"],
         export_includes=[bld.path.find_dir("include")],
         includes=[bld.path.find_dir("include")],
-        cxxflags=cxxflags,
         use=use,
     )
 
@@ -89,7 +76,6 @@ def build(bld):
             source=bld.path.ant_glob("test/**/*.cpp"),
             target="verify_tests",
             use=["verify", "gtest"],
-            cxxflags=cxxflags,
         )
 
 

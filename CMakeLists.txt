@@ -64,11 +64,6 @@ install(
     FILES_MATCHING
     PATTERN *.hpp)
 
-if (MSVC)
-    # Use the conforming preprocessor for MSVC
-    target_compile_options(${PROJECT_NAME} PUBLIC "/Zc:preprocessor")
-endif()
-
 if(STEINWURF_VERIFY_USE_LIBASSERT)
     if (NOT TARGET libassert::assert)
         add_subdirectory("${STEINWURF_RESOLVE}/libassert-source" libassert EXCLUDE_FROM_ALL)
