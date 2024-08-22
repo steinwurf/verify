@@ -9,11 +9,8 @@ project(
 )
 
 if(MSVC)
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        add_compile_options("/MTd")
-    elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
-        add_compile_options("/MT")
-    endif()
+    cmake_policy(SET CMP0091 NEW)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 find_package(Python COMPONENTS Interpreter)
