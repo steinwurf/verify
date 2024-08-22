@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(
     verify
-    VERSION 3.0.0 # Managed by waf
+    VERSION 3.0.1 # Managed by waf
     DESCRIPTION "a meta assertion library focused on high compatibility"
     HOMEPAGE_URL "https://github.com/steinwurf/verify"
     LANGUAGES CXX
