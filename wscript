@@ -11,7 +11,7 @@ import os.path
 from waflib import Build, Errors, Logs
 
 APPNAME = "verify"
-VERSION = "2.0.0"
+VERSION = "3.0.0"
 
 
 def configure(conf):

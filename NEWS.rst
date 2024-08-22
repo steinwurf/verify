@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+3.0.0
+-----
 * Major: Moved ``verify.hpp`` to ``verify/verify.hpp`` for windows support.
 * Major: Refactor of most build code and codebase to correctly support windows as a build target.
 
