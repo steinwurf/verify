@@ -49,16 +49,27 @@ def build(bld):
     # once it is done create a second build group
     bld.add_group()
 
-    if platform.system() == "Windows":
-        dwarf_name = "libdwarf"
-    else:
-        dwarf_name = "dwarf"
-
+    #if platform.system() == "Windows":
+    #    lib_name = "assert"
+    #else:
+    #    lib_name = "assert"
 
     bld.read_stlib("assert", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
     bld.read_stlib("cpptrace", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
-    bld.read_stlib(dwarf_name, paths=[lib_dir, lib64_dir], export_includes=[include_dir])
-    bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
+
+    use = ["assert", "cpptrace"];
+
+    if not platform.system() == "Windows":
+        bld.read_stlib(
+            "dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir]
+        )
+        use += ["dwarf"]
+        bld.read_stlib(
+            "zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir]
+        )
+        use += ["zstd"]
+    else:
+        use += ["DBGHELP"]
 
     bld.stlib(
         target="verify",
@@ -66,7 +77,7 @@ def build(bld):
         source=["src/verify.cpp"],
         export_includes=[bld.path.find_dir("include")],
         includes=[bld.path.find_dir("include")],
-        use=["assert", "cpptrace", "dwarf", "zstd"],
+        use=use,
     )
 
     if bld.is_toplevel():
