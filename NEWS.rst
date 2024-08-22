@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Add to tag-registry again
 
 3.0.1
 -----
