@@ -67,9 +67,13 @@ def build(bld):
         bld.read_stlib(
             "zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir]
         )
+        cxxflags = ""
         use += ["zstd"]
     else:
+        cxxflags = "/Zc:preprocessor"
         use += ["DBGHELP"]
+
+    
 
     bld.stlib(
         target="verify",
@@ -77,6 +81,7 @@ def build(bld):
         source=["src/verify.cpp"],
         export_includes=[bld.path.find_dir("include")],
         includes=[bld.path.find_dir("include")],
+        cxxflags=cxxflags,
         use=use,
     )
 
