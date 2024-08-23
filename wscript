@@ -17,7 +17,7 @@ VERSION = "3.0.2"
 def configure(conf):
     conf.set_cxx_std(17)
 
-    if not platform.system() == "windows":
+    if not platform.system() == "Windows":
         conf.check(lib="z")
 
     if conf.env.COMPILER_CXX == 'msvc':
@@ -52,7 +52,7 @@ def build(bld):
         install_dir=install_dir,
         source=src_dir,
     )
-    if platform.system() == "windows":
+    if platform.system() == "Windows":
         zlib_src_dir = bld.dependency_node("zlib-source")
         bld(
             features = 'cc cstaticlib',
@@ -72,7 +72,7 @@ def build(bld):
 
     use = ["assert", "cpptrace"];
 
-    if not platform.system() == "windows":
+    if not platform.system() == "Windows":
         bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
         use += ["dwarf"]
         bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
