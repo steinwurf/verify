@@ -15,8 +15,11 @@ VERSION = "3.0.2"
 
 
 def configure(conf):
-    conf.check(lib="z")
     conf.set_cxx_std(17)
+
+    if not platform.system() == "windows":
+        conf.check(lib="z")
+
     if conf.env.COMPILER_CXX == 'msvc':
         conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
     else:
@@ -49,6 +52,16 @@ def build(bld):
         install_dir=install_dir,
         source=src_dir,
     )
+    if platform.system() == "windows":
+        zlib_src_dir = bld.dependency_node("zlib-source")
+        bld(
+            features = 'cc cstaticlib',
+            source = zlib_src_dir.path.ant_glob('*.c'),
+            export_includes = zlib_src_dir.path,
+            includes = zlib_src_dir.path,
+            target = 'staticlib_zlib',
+        )
+
 
     # once it is done create a second build group
     bld.add_group()
@@ -56,15 +69,16 @@ def build(bld):
     bld.read_stlib("assert", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
     bld.read_stlib("cpptrace", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
 
-    use = ["assert", "cpptrace", "Z"];
+    use = ["assert", "cpptrace"];
 
     if not platform.system() == "windows":
         bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
         use += ["dwarf"]
         bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
         use += ["zstd"]
+        use += ["Z"]
     else:
-        use += []
+        use += ["staticlib_zlib"]
 
     bld.stlib(
         target="verify",
