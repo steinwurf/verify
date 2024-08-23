@@ -56,6 +56,7 @@ def build(bld):
         zlib_src_dir = bld.dependency_node("zlib-source")
         bld(
             features = 'cc cstaticlib',
+            cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'],
             source = zlib_src_dir.path.ant_glob('*.c'),
             export_includes = zlib_src_dir.path,
             includes = zlib_src_dir.path,
