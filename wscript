@@ -95,7 +95,7 @@ def build(bld):
             features="cxx test",
             source=bld.path.ant_glob("test/**/*.cpp"),
             target="verify_tests",
-            use=["verify", "gtest"],
+            use=["verify", "gtest"] + use,
         )
 
 
