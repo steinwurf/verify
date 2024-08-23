@@ -57,13 +57,11 @@ def configure(conf):
     if conf.options.use_libassert:
         if platform.system() == "Windows":
             conf.check(lib="dbghelp")
-            pass
         else:
             conf.check(lib="z")
 
         if conf.env.COMPILER_CXX == 'msvc':
             conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
-            pass
         else:
             conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
 
