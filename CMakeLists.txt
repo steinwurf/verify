@@ -63,8 +63,7 @@ install(
 
 if(STEINWURF_VERIFY_USE_LIBASSERT)
     if (NOT TARGET ZLIB::ZLIB)
-        set(ZLIB_BUILD_EXAMPLES NO)
-        add_subdirectory("${STEINWURF_RESOLVE}/zlib-source" ZLIB EXCLUDE_FROM_ALL)
+        find_package(ZLIB)
     endif()
     if (NOT TARGET libassert::assert)
         add_subdirectory("${STEINWURF_RESOLVE}/libassert-source" libassert EXCLUDE_FROM_ALL)
