@@ -16,13 +16,6 @@ VERSION = "3.0.2"
 def options(opt):
     opts = opt.add_option_group("Libassert Options")
     opts.add_option(
-        "--use-libassert",
-        default=True,
-        dest="use_libassert",
-        action="store_true",
-        help="Whether to use libassert when building verify",
-    )
-    opts.add_option(
         "--no-use-libassert",
         default=False,
         dest="no_use_libassert",
@@ -40,21 +33,21 @@ def options(opt):
 def configure(conf):
     conf.set_cxx_std(17)
 
-    # BUG: Disabled libassert on Windows when using Waf due to
-    # dllimport related issues in assert.lib and cpptrace.lib.
-    # See: https://github.com/steinwurf/verify/issues/3
-    if conf.env.COMPILER_CXX == 'msvc' and conf.options.use_libassert:
-        conf.options.use_libassert = False
-
-    if conf.options.no_use_libassert:
-        conf.options.use_libassert = False
-
-    # Allow overriding the default handling of --use-libassert/--no-use-libassert.
     if conf.options.force_libassert:
-        conf.options.use_libassert = True
+        # Allow overriding the default handling of --use-libassert/--no-use-libassert.
+        conf.env.USE_LIBASSERT = True
+    elif platform.system() == "Windows":
+        # BUG: Disabled libassert on Windows when using Waf due to
+        # dllimport related issues in assert.lib and cpptrace.lib.
+        # See: https://github.com/steinwurf/verify/issues/3
+        conf.env.USE_LIBASSERT = False
+    elif conf.options.no_use_libassert:
+        conf.env.USE_LIBASSERT = False
+    else:
+        conf.env.USE_LIBASSERT = True
 
 
-    if conf.options.use_libassert:
+    if conf.env.USE_LIBASSERT:
         if platform.system() == "Windows":
             conf.check(lib="dbghelp")
         else:
@@ -71,7 +64,7 @@ def build(bld):
 
     use = []
     # Build libassert dependency if we are using it.
-    if bld.options.use_libassert:
+    if bld.env.USE_LIBASSERT:
         # Find the source directory for the external library
         src_dir = bld.dependency_node("libassert-source")
 
