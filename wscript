@@ -17,7 +17,9 @@ VERSION = "3.0.2"
 def configure(conf):
     conf.set_cxx_std(17)
 
-    if not platform.system() == "Windows":
+    if platform.system() == "Windows":
+        conf.check(lib="dbghelp")
+    else:
         conf.check(lib="z")
 
     if conf.env.COMPILER_CXX == 'msvc':
@@ -79,7 +81,7 @@ def build(bld):
         use += ["zstd"]
         use += ["Z"]
     else:
-        use += ["z"]
+        use += ["z", "DBGHELP"]
 
     bld.stlib(
         target="verify",
