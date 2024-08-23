@@ -13,83 +13,120 @@ from waflib import Build, Errors, Logs
 APPNAME = "verify"
 VERSION = "3.0.2"
 
+def options(opt):
+    opts = opt.add_option_group("Libassert Options")
+    opts.add_option(
+        "--use-libassert",
+        default=True,
+        dest="use_libassert",
+        action="store_true",
+        help="Whether to use libassert when building verify",
+    )
+    opts.add_option(
+        "--no-use-libassert",
+        default=False,
+        dest="no_use_libassert",
+        action="store_true",
+        help="Whether to not use libassert when building verify",
+    )
+    opts.add_option(
+        "--force-libassert",
+        default=False,
+        dest="force_libassert",
+        action="store_true",
+        help="Whether to force the use of libassert regardless of build failures",
+    )
 
-# BUG: Disabled libassert on Windows when using Waf due to
-# dllimport related issues in assert.lib and cpptrace.lib.
-# See: https://github.com/steinwurf/verify/issues/3
 def configure(conf):
     conf.set_cxx_std(17)
 
-    if platform.system() == "Windows":
-        # conf.check(lib="dbghelp")
-        pass
-    else:
-        conf.check(lib="z")
+    # BUG: Disabled libassert on Windows when using Waf due to
+    # dllimport related issues in assert.lib and cpptrace.lib.
+    # See: https://github.com/steinwurf/verify/issues/3
+    if conf.env.COMPILER_CXX == 'msvc' and conf.options.use_libassert:
+        conf.options.use_libassert = False
 
-    if conf.env.COMPILER_CXX == 'msvc':
-        # conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
-        pass
-    else:
-        conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
+    if conf.options.no_use_libassert:
+        conf.options.use_libassert = False
+
+    # Allow overriding the default handling of --use-libassert/--no-use-libassert.
+    if conf.options.force_libassert:
+        conf.options.use_libassert = True
+
+
+    if conf.options.use_libassert:
+        if platform.system() == "Windows":
+            conf.check(lib="dbghelp")
+            pass
+        else:
+            conf.check(lib="z")
+
+        if conf.env.COMPILER_CXX == 'msvc':
+            conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
+            pass
+        else:
+            conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
 
 
 def build(bld):
     bld.post_mode = Build.POST_LAZY
 
-    # Find the source directory for the external library
-    src_dir = bld.dependency_node("libassert-source")
+    use = []
+    # Build libassert dependency if we are using it.
+    if bld.options.use_libassert:
+        # Find the source directory for the external library
+        src_dir = bld.dependency_node("libassert-source")
 
-    # Declare the temporary build directory for the external library
-    # it is best to keep it under the project build directory
-    build_dir = bld.bldnode.make_node("libassert_build")
+        # Declare the temporary build directory for the external library
+        # it is best to keep it under the project build directory
+        build_dir = bld.bldnode.make_node("libassert_build")
 
-    # Declare the install directory for the external library
-    install_dir = build_dir.make_node("install")
+        # Declare the install directory for the external library
+        install_dir = build_dir.make_node("install")
 
-    # Declare the include directory for the external library
-    include_dir = install_dir.make_node("include")
+        # Declare the include directory for the external library
+        include_dir = install_dir.make_node("include")
 
-    lib_dir = install_dir.make_node("lib")
-    lib64_dir = install_dir.make_node("lib64")
+        lib_dir = install_dir.make_node("lib")
+        lib64_dir = install_dir.make_node("lib64")
 
-    # Build the external library through an external process
-    bld(
-        rule=CMakeBuildTask,
-        target=build_dir.make_node("flag.lock"),
-        install_dir=install_dir,
-        source=src_dir,
-    )
+        # Zlib is not easily available on Windows, therefore we compile our own.
+        if platform.system() == "Windows":
+            zlib_src_dir = bld.dependency_node("zlib-source")
+            bld.stlib(
+                features = 'c',
+                cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'],
+                source = zlib_src_dir.ant_glob('*.c'),
+                export_includes = [zlib_src_dir.abspath()],
+                includes = [zlib_src_dir.abspath()],
+                target = 'z',
+            )
 
-    if platform.system() == "Windows":
-        # zlib_src_dir = bld.dependency_node("zlib-source")
-        # bld.stlib(
-        #     features = 'c',
-        #     cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'],
-        #     source = zlib_src_dir.ant_glob('*.c'),
-        #     export_includes = [zlib_src_dir.abspath()],
-        #     includes = [zlib_src_dir.abspath()],
-        #     target = 'z',
-        # )
-        pass
+        # Build the external library through an external process
+        bld(
+            rule=CMakeBuildTask,
+            target=build_dir.make_node("flag.lock"),
+            install_dir=install_dir,
+            source=src_dir,
+        )
+
+        # once it is done create a second build group
+        bld.add_group()
 
 
-    # once it is done create a second build group
-    bld.add_group()
+        bld.read_stlib("assert", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
+        bld.read_stlib("cpptrace", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
 
-    bld.read_stlib("assert", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
-    bld.read_stlib("cpptrace", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
+        use += ["assert", "cpptrace"];
 
-    use = ["assert", "cpptrace"];
-
-    if not platform.system() == "Windows":
-        bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
-        use += ["dwarf"]
-        bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
-        use += ["zstd"]
-        use += ["Z"]
-    else:
-        # use += ["z", "DBGHELP"]
-        pass
+        if platform.system() == "Windows":
+            use += ["z", "DBGHELP"]
+        else:
+            bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
+            use += ["dwarf"]
+            bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
+            use += ["zstd"]
+            use += ["Z"]
 
     bld.stlib(
         target="verify",
