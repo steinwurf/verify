@@ -6,7 +6,9 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Major: DEBUG_VERIFY is now replaced by VERIFY as both functions ended up doing the same thing.
+* Minor: Waf builds on Windows fall back on a generic assert instead of using libassert.
+* Minor: The error message in the generic assert is now more readable.
 
 3.0.2
 -----

@@ -2,7 +2,7 @@ Verify
 ======
 
 Verify is a meta assertion library using ``libassert`` with a builtin fallback
-to ``cassert`` when required for unsupported platforms.
+to a generic ``std::abort`` method when required for unsupported platforms.
 
 
 Usage
@@ -14,27 +14,17 @@ There's three primary ways to call Verify:
 2. ``VERIFY(condition, error_string)``
 3. ``VERIFY(condition, error_string, variables...)``
 
-These do respectively:
+These arguments do respectively:
 
 * ``condition``: holds the boolean test. If this returns false it will trigger
-  an assertion. This will always get evaluated regardless of build type.
+  an assertion. This will always get evaluated unless ``NDEBUG`` is defined, then
+  it would get substituted with a ``(void)0`` instead.
 * ``error_string``: can hold an extra human readable error message to explain
-  what occurred.
+  what occurred. Needs to support the ``<<`` to std:err. Recommended it to be a
+  string literal.
 * ``variables``: can hold a list of extra variables and will print their
-  currently held data when the backend supports it (like libassert).
-
-There's an alternative `VERIFY_DEBUG` macro with the same structure, which
-notably will not get evaluated at all in `NDEBUG` builds.
-
-
-Functionality
--------------
-
-* When ``NDEBUG`` is not defined, both ``VERIFY`` and ``VERIFY_DEBUG`` will raise
-  assertions.
-* When ``NDEBUG`` is defined, ``VERIFY`` will evaluate the statement, but will not
-  raise on its result. ``VERIFY_DEBUG`` will not evaluate the assertion at all.
-
+  currently held data. Currently supported in ``libassert``, otherwise these
+  arguments are ignored.
 
 Limitations
 -----------

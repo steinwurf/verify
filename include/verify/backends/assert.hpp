@@ -58,12 +58,10 @@
 #define VERIFY_IMPL31(expr, err, ...) VERIFY_IMPL2(expr, err)
 #define VERIFY_IMPL32(expr, err, ...) VERIFY_IMPL2(expr, err)
 
-#define VERIFY_IMPL(...) __VERIFY_OVERLOAD(VERIFY_IMPL, __VA_ARGS__)
-
 #ifndef NDEBUG
-#define VERIFY_DEBUG_IMPL(...) __VERIFY_OVERLOAD(VERIFY_IMPL, __VA_ARGS__)
+#define VERIFY_IMPL(...) __VERIFY_OVERLOAD(VERIFY_IMPL, __VA_ARGS__)
 #else
-#define VERIFY_DEBUG_IMPL(...) ((void)0)
+#define VERIFY_IMPL(...) ((void)0)
 #endif // NDEBUG
 
 #endif // STEINWURF_VERIFY_BACKENDS_ASSERT_HPP

@@ -9,10 +9,8 @@
 
 #ifdef _MSC_VER
 #define VERIFY VERIFY_IMPL
-#define VERIFY_DEBUG VERIFY_DEBUG_IMPL
 #else
 #define VERIFY(...) VERIFY_IMPL(__VA_ARGS__)
-#define VERIFY_DEBUG(...) VERIFY_DEBUG_IMPL(__VA_ARGS__)
 #endif // _MSC_VER
 
 #endif // STEINWURF_VERIFY_HPP

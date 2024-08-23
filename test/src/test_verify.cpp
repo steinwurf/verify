@@ -25,5 +25,10 @@ void trigger_verify() {
 }
 
 TEST(test_verify, failing) {
+#ifdef NDEBUG
+  // TODO: Do nothing, tests rely on NDEBUG.
+  GTEST_SKIP();
+#else
   EXPECT_DEATH(trigger_verify(), "expected key not found");
+#endif
 }
