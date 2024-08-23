@@ -85,6 +85,7 @@
 #define VERIFY_DEBUG_IMPL32(expr, ...) VERIFY_DEBUG_IMPL2(expr, __VA_ARGS__)
 
 #define VERIFY_DEBUG_IMPL(...) __VERIFY_OVERLOAD(VERIFY_DEBUG_IMPL, __VA_ARGS__)
+
 #else
 #define VERIFY_DEBUG_IMPL(expr, ...) ((void)0)
 #endif // NDEBUG

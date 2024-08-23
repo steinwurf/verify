@@ -1,15 +1,11 @@
 #ifndef STEINWURF_VERIFY_HPP
 #define STEINWURF_VERIFY_HPP
 
-#ifdef NDEBUG
-#include "backends/stub.hpp"
-#else
 #ifdef STEINWURF_VERIFY_USE_LIBASSERT
 #include "backends/libassert.hpp"
 #else
 #include "backends/assert.hpp"
 #endif // STEINWURF_VERIFY_USE_LIBASSERT
-#endif // NDEBUG
 
 #ifdef _MSC_VER
 #define VERIFY VERIFY_IMPL

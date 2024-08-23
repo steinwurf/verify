@@ -2,14 +2,18 @@
 #define STEINWURF_VERIFY_BACKENDS_ASSERT_HPP
 
 #include "../verify_variadic_overload_macro.hpp"
-#include <cassert>
 
-#define VERIFY_IMPL1(expr)                                                     \
-  ((void)(expr));                                                              \
-  assert((expr))
-#define VERIFY_IMPL2(expr, err)                                                \
-  ((void)(expr));                                                              \
-  assert((expr) && err)
+#define __verify_assert(condition) \
+    do { \
+        if (!(condition)) { \
+            std::cerr << "Assertion failed: (" #condition ") in " << __FILE__ \
+                      << ", function " << __FUNCTION__ << ", line " << __LINE__ << "." << std::endl; \
+            std::abort(); \
+        } \
+    } while (false)
+
+#define VERIFY_IMPL1(expr) __verify_assert(expr)
+#define VERIFY_IMPL2(expr, err) __verify_assert(expr && err)
 
 // Brute force N-args with variadic macros.
 // TODO: Is there a better way to do this?
