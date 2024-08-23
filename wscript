@@ -54,13 +54,15 @@ def build(bld):
     )
     if platform.system() == "Windows":
         zlib_src_dir = bld.dependency_node("zlib-source")
+        zlib_build_dir = bld.bldnode.make_node("zlib_build")
         bld.stlib(
             features = 'c',
             cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'],
             source = zlib_src_dir.ant_glob('*.c'),
             export_includes = zlib_src_dir.abspath(),
             includes = zlib_src_dir.abspath(),
-            target = 'staticlib_zlib',
+            install_dir = zlib_build_dir.abspath(),
+            target = 'z',
         )
 
 
@@ -79,7 +81,7 @@ def build(bld):
         use += ["zstd"]
         use += ["Z"]
     else:
-        use += ["staticlib_zlib"]
+        use += ["z"]
 
     bld.stlib(
         target="verify",
@@ -95,7 +97,7 @@ def build(bld):
             features="cxx test",
             source=bld.path.ant_glob("test/**/*.cpp"),
             target="verify_tests",
-            use=["verify", "gtest"] + use,
+            use=["verify", "gtest"],
         )
 
 
