@@ -11,7 +11,7 @@ import os.path
 from waflib import Build, Errors, Logs
 
 APPNAME = "verify"
-VERSION = "3.0.2"
+VERSION = "4.0.0"
 
 def options(opt):
     opts = opt.add_option_group("Libassert Options")
