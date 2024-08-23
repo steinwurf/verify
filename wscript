@@ -14,16 +14,21 @@ APPNAME = "verify"
 VERSION = "3.0.2"
 
 
+# BUG: Disabled libassert on Windows when using Waf due to
+# dllimport related issues in assert.lib and cpptrace.lib.
+# See: https://github.com/steinwurf/verify/issues/3
 def configure(conf):
     conf.set_cxx_std(17)
 
     if platform.system() == "Windows":
-        conf.check(lib="dbghelp")
+        # conf.check(lib="dbghelp")
+        pass
     else:
         conf.check(lib="z")
 
     if conf.env.COMPILER_CXX == 'msvc':
-        conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
+        # conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
+        pass
     else:
         conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
 
@@ -54,16 +59,18 @@ def build(bld):
         install_dir=install_dir,
         source=src_dir,
     )
+
     if platform.system() == "Windows":
-        zlib_src_dir = bld.dependency_node("zlib-source")
-        bld.stlib(
-            features = 'c',
-            cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'],
-            source = zlib_src_dir.ant_glob('*.c'),
-            export_includes = [zlib_src_dir.abspath()],
-            includes = [zlib_src_dir.abspath()],
-            target = 'z',
-        )
+        # zlib_src_dir = bld.dependency_node("zlib-source")
+        # bld.stlib(
+        #     features = 'c',
+        #     cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'],
+        #     source = zlib_src_dir.ant_glob('*.c'),
+        #     export_includes = [zlib_src_dir.abspath()],
+        #     includes = [zlib_src_dir.abspath()],
+        #     target = 'z',
+        # )
+        pass
 
 
     # once it is done create a second build group
@@ -81,7 +88,8 @@ def build(bld):
         use += ["zstd"]
         use += ["Z"]
     else:
-        use += ["z", "DBGHELP"]
+        # use += ["z", "DBGHELP"]
+        pass
 
     bld.stlib(
         target="verify",
@@ -146,7 +154,7 @@ def CMakeBuildTask(task):
         if task.env["DEST_CPU"] == "x86":
             flags.append("-A Win32")
 
-    # SRT cmake flags
+    # cmake flags
     flags += [
         f"-DCMAKE_BUILD_TYPE={CMAKE_BUILD_TYPE}",
         f"-DCMAKE_INSTALL_PREFIX={install_dir}",
