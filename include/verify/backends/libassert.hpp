@@ -7,7 +7,7 @@
 #define VERIFY_IMPL(expr, ...)                                                 \
   LIBASSERT_INVOKE(expr, "VERIFY", assertion, , __VA_ARGS__)
 #else
-#define VERIFY_IMPL(expr, ...) ((void)0)
+#define VERIFY_IMPL(...) ((void)0)
 #endif // NDEBUG
 
 #endif // STEINWURF_VERIFY_BACKENDS_LIBASSERT_HPP
