@@ -1,6 +1,8 @@
 #ifndef STEINWURF_VERIFY_BACKENDS_ASSERT_HPP
 #define STEINWURF_VERIFY_BACKENDS_ASSERT_HPP
 
+#include <iostream>
+#include <cstdlib>
 #include "../verify_variadic_overload_macro.hpp"
 
 #define __verify_assert1(condition)                                            \
