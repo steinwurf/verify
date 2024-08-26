@@ -4,7 +4,8 @@
 #include <libassert/assert.hpp>
 
 #ifndef NDEBUG
-#define VERIFY_IMPL(expr, ...) LIBASSERT_INVOKE(expr, "VERIFY", assertion, , __VA_ARGS__)
+#define VERIFY_IMPL(expr, ...)                                                 \
+  LIBASSERT_INVOKE(expr, "VERIFY", assertion, , __VA_ARGS__)
 #else
 #define VERIFY_IMPL(expr, ...) ((void)0)
 #endif // NDEBUG
