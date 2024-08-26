@@ -6,7 +6,8 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Major: Change --force-libassert to --force-use-libassert in waf for clarity
+* Patch: Add missing headers in assert.hpp backend.
 
 4.0.0
 -----
