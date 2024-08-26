@@ -23,9 +23,9 @@ def options(opt):
         help="Whether to not use libassert when building verify",
     )
     opts.add_option(
-        "--force-libassert",
+        "--force-use-libassert",
         default=False,
-        dest="force_libassert",
+        dest="force_use_libassert",
         action="store_true",
         help="Whether to force the use of libassert regardless of build failures",
     )
@@ -33,7 +33,7 @@ def options(opt):
 def configure(conf):
     conf.set_cxx_std(17)
 
-    if conf.options.force_libassert:
+    if conf.options.force_use_libassert:
         # Allow overriding the default handling of --use-libassert/--no-use-libassert.
         conf.env.USE_LIBASSERT = True
     elif platform.system() == "Windows":
