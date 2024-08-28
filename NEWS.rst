@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Fix linking issues on raspberry pi machines
 
 5.1.0
 -----
