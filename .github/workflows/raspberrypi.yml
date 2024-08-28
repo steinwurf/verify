@@ -39,11 +39,11 @@ jobs:
       - name: Gather Test Binary and Input files
         run: |
           mkdir artifact
-          mv build_current/plumr_tests ./artifact
+          mv build_current/verify_tests ./artifact
       - name: Upload Test Binary Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: plumr_tests
+          name: verify_tests
           path: artifact
           retention-days: 1
   tests:
@@ -58,16 +58,16 @@ jobs:
       - name: Download Test Binary Artifact
         uses: actions/download-artifact@v4
         with:
-          name: plumr_tests
+          name: verify_tests
       - name: List files
         run: ls -l
       - name: Run all tests
-        run: chmod +x plumr_tests
+        run: chmod +x verify_tests
       - name: Get backtrace on failure if available
         run: |
-          if ! ./plumr_tests; then
+          if ! ./verify_tests; then
             echo "Test failed, getting backtrace"
-            gdb -batch -ex "r" -ex "thread apply all backtrace full" -ex "quit" ./plumr_tests
+            gdb -batch -ex "r" -ex "thread apply all backtrace full" -ex "quit" ./verify_tests
             exit 1
           fi
 
