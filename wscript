@@ -57,7 +57,8 @@ def configure(conf):
         if conf.options.no_use_system_zlib:
             conf.env.LIB_Z = []
         else:
-            conf.check(lib="z", mandatory=False, uselib_store='Z')
+            conf.check(lib="z", mandatory=False)
+            conf.check(lib="dl", mandatory=False)
 
         if platform.system() == "Windows":
             conf.check(lib="dbghelp")
@@ -145,6 +146,8 @@ def build(bld):
         else:
             bld.read_stlib("z", paths=[zlib_lib_dir], export_includes=[zlib_include_dir])
             use += ["z"]
+
+        use += ["DL"]
 
     bld.stlib(
         target="verify",
