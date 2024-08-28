@@ -5,8 +5,7 @@ project(
     VERSION 5.1.0 # Managed by waf
     DESCRIPTION "a meta assertion library focused on high compatibility"
     HOMEPAGE_URL "https://github.com/steinwurf/verify"
-    LANGUAGES CXX
-)
+    LANGUAGES CXX)
 
 if(MSVC)
     cmake_policy(SET CMP0091 NEW)
@@ -77,7 +76,7 @@ if(STEINWURF_VERIFY_USE_LIBASSERT)
     target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
-if (${PROJECT_IS_TOP_LEVEL})
+if (${PROJECT_NAME} STREQUAL ${STEINWURF_TOP_NAME})
     enable_testing()
 
     if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
