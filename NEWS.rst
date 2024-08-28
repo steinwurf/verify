@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Minor: Set up transparent zlib building when system library is not found
 
 5.0.1
 -----
