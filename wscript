@@ -53,8 +53,6 @@ def configure(conf):
     else:
         conf.env.USE_LIBASSERT = True
 
-
-    # Guard clase: Stop parsing if we shouldn't use libassert.
     if conf.env.USE_LIBASSERT:
         if conf.options.no_use_system_zlib:
             conf.env.LIB_Z = []
