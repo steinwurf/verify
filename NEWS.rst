@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Fix MacOS related build warnings and errors
 
 5.0.0
 -----
