@@ -14,7 +14,14 @@ APPNAME = "verify"
 VERSION = "5.0.1"
 
 def options(opt):
-    opts = opt.add_option_group("Libassert Options")
+    opts = opt.add_option_group("Verify Options")
+    opts.add_option(
+        "--no-use-system-zlib",
+        default=False,
+        dest="no_use_system_zlib",
+        action="store_true",
+        help="Whether to not use system zlib when building verify",
+    )
     opts.add_option(
         "--no-use-libassert",
         default=False,
@@ -47,16 +54,22 @@ def configure(conf):
         conf.env.USE_LIBASSERT = True
 
 
-    if conf.env.USE_LIBASSERT:
-        if platform.system() == "Windows":
-            conf.check(lib="dbghelp")
-        else:
-            conf.check(lib="z")
+    # Guard clase: Stop parsing if we shouldn't use libassert.
+    if not conf.env.USE_LIBASSERT:
+        pass
 
-        if conf.env.COMPILER_CXX == 'msvc':
-            conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
-        else:
-            conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
+    if conf.options.no_use_system_zlib:
+        conf.env.LIB_Z = []
+    else:
+        conf.check(lib="z", mandatory=False, uselib_store='Z')
+
+    if platform.system() == "Windows":
+        conf.check(lib="dbghelp")
+
+    if conf.env.COMPILER_CXX == 'msvc':
+        conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
+    else:
+        conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
 
 
 def build(bld):
@@ -81,17 +94,30 @@ def build(bld):
         lib_dir = install_dir.make_node("lib")
         lib64_dir = install_dir.make_node("lib64")
 
-        # Zlib is not easily available on Windows, therefore we compile our own.
-        if platform.system() == "Windows":
-            zlib_src_dir = bld.dependency_node("zlib-source")
-            bld.stlib(
-                features = 'c',
-                cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'],
-                source = zlib_src_dir.ant_glob('*.c'),
-                export_includes = [zlib_src_dir.abspath()],
-                includes = [zlib_src_dir.abspath()],
-                target = 'z',
+        zlib_src_dir = bld.dependency_node("zlib-source")
+        zlib_build_dir = bld.bldnode.make_node("zlib_build")
+        zlib_install_dir = zlib_build_dir.make_node("install")
+        zlib_include_dir = zlib_install_dir.make_node("include")
+        zlib_lib_dir = zlib_install_dir.make_node("lib")
+
+        # Zlib is not always available, therefore we compile our own.
+        # TODO: Rely on platforms that we can't compile zlib on, instead of just looking for where we don't have it?
+        if not 'z' in bld.env.LIB_Z:
+            #bld.stlib(
+            #    features = 'c',
+            #    cflags = ['/D_CRT_SECURE_NO_DEPRECATE', '/D_CRT_NONSTDC_NO_DEPRECATE'] if (platform.system() == "Windows") else [],
+            #    source = zlib_src_dir.ant_glob('*.c'),
+            #    export_includes = [zlib_src_dir.abspath()],
+            #    includes = [zlib_src_dir.abspath()],
+            #    target = 'z',
+            #)
+            bld(
+                rule=CMakeBuildTask,
+                target=zlib_build_dir.make_node("flag.lock"),
+                install_dir=zlib_install_dir,
+                source=zlib_src_dir,
             )
+
 
         # Build the external library through an external process
         bld(
@@ -111,13 +137,18 @@ def build(bld):
         use += ["assert", "cpptrace"];
 
         if platform.system() == "Windows":
-            use += ["z", "DBGHELP"]
+            use += ["DBGHELP"]
         else:
             bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
             use += ["dwarf"]
             bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
             use += ["zstd"]
+
+        if 'z' in bld.env.LIB_Z:
             use += ["Z"]
+        else:
+            bld.read_stlib("z", paths=[zlib_lib_dir], export_includes=[zlib_include_dir])
+            use += ["z"]
 
     bld.stlib(
         target="verify",
