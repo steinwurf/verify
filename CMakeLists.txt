@@ -102,5 +102,17 @@ if (${PROJECT_IS_TOP_LEVEL})
     set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
     set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
 
+    if (MSVC)
+        add_compile_options(/W4)
+        # Make Release builds explicitly keep NDEBUG unset.
+        string(REGEX REPLACE "/DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+        string(REGEX REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+    else()
+        add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+        # Make Release builds explicitly keep NDEBUG unset.
+        string(REGEX REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+        string(REGEX REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
+    endif()
+
     add_test(verify_tests verify_tests)
 endif()
