@@ -58,7 +58,8 @@ def configure(conf):
             conf.env.LIB_Z = []
         else:
             conf.check(lib="z", mandatory=False)
-            conf.check(lib="dl", mandatory=False)
+        if "aarch64" in conf.env.CXX[0] or platform.machine() == "armv7l" or platform.machine() == "aarch64":
+            conf.check(lib="dl", mandatory=True)
 
         if platform.system() == "Windows":
             conf.check(lib="dbghelp")
@@ -147,7 +148,8 @@ def build(bld):
             bld.read_stlib("z", paths=[zlib_lib_dir], export_includes=[zlib_include_dir])
             use += ["z"]
 
-        use += ["DL"]
+        if "aarch64" in bld.env.CXX[0] or platform.machine() == "armv7l" or platform.machine() == "aarch64":
+            use += ["DL"]
 
     bld.stlib(
         target="verify",
