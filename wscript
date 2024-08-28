@@ -55,21 +55,19 @@ def configure(conf):
 
 
     # Guard clase: Stop parsing if we shouldn't use libassert.
-    if not conf.env.USE_LIBASSERT:
-        pass
+    if conf.env.USE_LIBASSERT:
+        if conf.options.no_use_system_zlib:
+            conf.env.LIB_Z = []
+        else:
+            conf.check(lib="z", mandatory=False, uselib_store='Z')
 
-    if conf.options.no_use_system_zlib:
-        conf.env.LIB_Z = []
-    else:
-        conf.check(lib="z", mandatory=False, uselib_store='Z')
+        if platform.system() == "Windows":
+            conf.check(lib="dbghelp")
 
-    if platform.system() == "Windows":
-        conf.check(lib="dbghelp")
-
-    if conf.env.COMPILER_CXX == 'msvc':
-        conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
-    else:
-        conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
+        if conf.env.COMPILER_CXX == 'msvc':
+            conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
+        else:
+            conf.env.CXXFLAGS += ['-DSTEINWURF_VERIFY_USE_LIBASSERT']
 
 
 def build(bld):
