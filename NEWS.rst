@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+5.1.2
+-----
 * Patch: Fix intermittent linking issues on linux machines
 
 5.1.1
