@@ -58,11 +58,11 @@ def configure(conf):
             conf.env.LIB_Z = []
         else:
             conf.check(lib="z", mandatory=False)
-        if "aarch64" in conf.env.CXX[0] or platform.machine() == "armv7l" or platform.machine() == "aarch64":
-            conf.check(lib="dl", mandatory=True)
 
         if platform.system() == "Windows":
-            conf.check(lib="dbghelp")
+            conf.check(lib="dbghelp", mandatory=True)
+        else:
+            conf.check(lib="dl", mandatory=True)
 
         if conf.env.COMPILER_CXX == 'msvc':
             conf.env.CXXFLAGS += ['/DSTEINWURF_VERIFY_USE_LIBASSERT']
@@ -137,6 +137,7 @@ def build(bld):
         if platform.system() == "Windows":
             use += ["DBGHELP"]
         else:
+            use += ["DL"]
             bld.read_stlib("dwarf", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
             use += ["dwarf"]
             bld.read_stlib("zstd", paths=[lib_dir, lib64_dir], export_includes=[include_dir])
@@ -147,9 +148,6 @@ def build(bld):
         else:
             bld.read_stlib("z", paths=[zlib_lib_dir], export_includes=[zlib_include_dir])
             use += ["z"]
-
-        if "aarch64" in bld.env.CXX[0] or platform.machine() == "armv7l" or platform.machine() == "aarch64":
-            use += ["DL"]
 
     bld.stlib(
         target="verify",
