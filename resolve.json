@@ -20,14 +20,14 @@
         "name": "libassert-source",
         "resolver": "git",
         "method": "checkout",
-        "checkout": "9e06e4d57b96c003375b8f7824a2fb67c946e726",
+        "checkout": "e06e4d57b96c003375b8f7824a2fb67c946e726",
         "source": "github.com/steinwurf-sofie/libassert.git"
     },
     {
         "name": "zlib-source",
         "resolver": "git",
         "method": "checkout",
-        "checkout": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+        "checkout": "b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
         "source": "github.com/madler/zlib.git"
     }
 ]
