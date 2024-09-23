@@ -62,7 +62,7 @@ install(
 
 if(STEINWURF_VERIFY_USE_LIBASSERT)
     if(NOT TARGET ZLIB::ZLIB)
-        if(APPLE)
+        if(FALSE)
             # There's some strangeness compiling this ourselves on MacOS
             find_package(ZLIB REQUIRED)
         else()
