@@ -61,10 +61,14 @@ install(
     PATTERN *.hpp)
 
 if(STEINWURF_VERIFY_USE_LIBASSERT)
-    if (NOT TARGET ZLIB::ZLIB)
-        find_package(ZLIB)
-        if (NOT ZLIB_FOUND)
-            set(ZLIB_BUILD_EXAMPLES NO)
+    if(NOT TARGET ZLIB::ZLIB)
+        if(APPLE)
+            # There's some strangeness compiling this ourselves on MacOS
+            find_package(ZLIB REQUIRED)
+        else()
+            set(ZLIB_COMPAT YES)
+            set(ZLIB_ENABLE_TESTS NO)
+            set(ZLIBNG_ENABLE_TESTS NO)
             add_subdirectory("${STEINWURF_RESOLVE}/zlib-source" zlib EXCLUDE_FROM_ALL)
         endif()
     endif()
