@@ -212,6 +212,9 @@ def CMakeBuildTask(task):
         if task.env["DEST_CPU"] == "x86":
             flags.append("-A Win32")
 
+    if "-fPIC" in task.env.CXXFLAGS:
+        flags.append("-DCMAKE_POSITION_INDEPENDENT_CODE=ON")
+
     # cmake flags
     flags += [
         f"-DCMAKE_BUILD_TYPE={CMAKE_BUILD_TYPE}",
