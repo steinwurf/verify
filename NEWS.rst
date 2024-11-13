@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Forward ``-fPIC`` flag to cmake builds.
 
 5.1.2
 -----
