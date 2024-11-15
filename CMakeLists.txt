@@ -18,9 +18,9 @@ find_package(Python COMPONENTS Interpreter)
 if(NOT DEFINED STEINWURF_RESOLVE)
     message(STATUS "Resolving dependencies...")
     execute_process(
-    COMMAND ${Python_EXECUTABLE} waf resolve ${STEINWURF_RESOLVE_OPTIONS}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    RESULT_VARIABLE STATUS)
+        COMMAND ${Python_EXECUTABLE} waf resolve ${STEINWURF_RESOLVE_OPTIONS}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE STATUS)
 
     if(STATUS AND NOT STATUS EQUAL 0)
         message(FATAL_ERROR "Failed: ${STATUS}")
@@ -32,16 +32,17 @@ endif()
 
 if(NOT DEFINED STEINWURF_VERIFY_USE_LIBASSERT)
     message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, using YES")
-    #if(WIN32)
-    #    # Currently libassert doesn't seem to build against windows with our wrapping
-    #    # https://github.com/steinwurf/libassert/pull/1
-    #    set(STEINFWURF_VERIFY_USE_LIBASSERT NO)
-    #    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to NO due to WIN32 environment")
-    #else()
-    #    # MacOS / *UNIX-likes build correctly with libassert. Enable these by default.
-    #    set(STEINWURF_VERIFY_USE_LIBASSERT YES)
-    #    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to YES")
-    #endif()
+
+    # if(WIN32)
+    # # Currently libassert doesn't seem to build against windows with our wrapping
+    # # https://github.com/steinwurf/libassert/pull/1
+    # set(STEINFWURF_VERIFY_USE_LIBASSERT NO)
+    # message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to NO due to WIN32 environment")
+    # else()
+    # # MacOS / *UNIX-likes build correctly with libassert. Enable these by default.
+    # set(STEINWURF_VERIFY_USE_LIBASSERT YES)
+    # message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to YES")
+    # endif()
     set(STEINWURF_VERIFY_USE_LIBASSERT YES)
 endif()
 
@@ -61,34 +62,38 @@ install(
     PATTERN *.hpp)
 
 if(STEINWURF_VERIFY_USE_LIBASSERT)
-    if (NOT TARGET ZLIB::ZLIB)
+    if(NOT TARGET ZLIB::ZLIB)
         find_package(ZLIB)
-        if (NOT ZLIB_FOUND)
+
+        if(NOT ZLIB_FOUND)
             set(ZLIB_BUILD_EXAMPLES NO)
             add_subdirectory("${STEINWURF_RESOLVE}/zlib-source" zlib EXCLUDE_FROM_ALL)
         endif()
     endif()
-    if (NOT TARGET libassert::assert)
+
+    if(NOT TARGET libassert::assert)
         add_subdirectory("${STEINWURF_RESOLVE}/libassert-source" libassert EXCLUDE_FROM_ALL)
     endif()
+
     target_link_libraries(${PROJECT_NAME} PUBLIC libassert::assert)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
     target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
-if (${PROJECT_NAME} STREQUAL ${STEINWURF_TOP_NAME})
+if(${PROJECT_NAME} STREQUAL ${STEINWURF_TOP_NAME})
     enable_testing()
 
-    if (CMAKE_C_COMPILER_ID MATCHES "MSVC")
-       # For Windows: Prevent overriding the parent project's compiler/linker
-       # settings
-       set(gtest_force_shared_crt
-               ON
-               CACHE BOOL "" FORCE)
-    endif ()
+    if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
+        # For Windows: Prevent overriding the parent project's compiler/linker
+        # settings
+        set(gtest_force_shared_crt
+            ON
+            CACHE BOOL "" FORCE)
+    endif()
 
     # Google Test dependency
     add_subdirectory("${STEINWURF_RESOLVE}/gtest-source" gtest_main EXCLUDE_FROM_ALL)
+
     # Define library
     file(GLOB_RECURSE verify_test_sources test/**/*.cpp)
 
@@ -101,13 +106,15 @@ if (${PROJECT_NAME} STREQUAL ${STEINWURF_TOP_NAME})
     set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
     set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
 
-    if (MSVC)
+    if(MSVC)
         add_compile_options(/W4)
+
         # Make Release builds explicitly keep NDEBUG unset.
         string(REGEX REPLACE "/DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
         string(REGEX REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
     else()
         add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+
         # Make Release builds explicitly keep NDEBUG unset.
         string(REGEX REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
         string(REGEX REPLACE "-DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
