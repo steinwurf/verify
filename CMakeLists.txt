@@ -53,6 +53,24 @@ target_include_directories(${PROJECT_NAME} INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
+
+# Enable pedantic errors
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+# GCC is throwing ISO errors from abseil that we can't fix
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    # Clang gets really mad at libassert for using zero arguments internally to
+    # `...` VA_ARGS.
+    target_compile_options(${PROJECT_NAME} PUBLIC -pedantic-errors
+        -Wno-gnu-zero-variadic-macro-arguments)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    # Clang gets really mad at libassert for using zero arguments internally to
+    # `...` VA_ARGS.
+    target_compile_options(${PROJECT_NAME} PUBLIC -pedantic-errors
+        -Wno-gnu-zero-variadic-macro-arguments)
+else()
+    target_compile_options(${PROJECT_NAME} PUBLIC -pedantic-errors)
+endif()
+
 add_library(steinwurf::verify ALIAS ${PROJECT_NAME})
 
 install(

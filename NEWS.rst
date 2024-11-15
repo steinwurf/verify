@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Handle pandantic errors in CMakeLists.txt
 
 5.1.3
 -----
