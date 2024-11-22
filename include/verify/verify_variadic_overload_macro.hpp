@@ -1,5 +1,9 @@
-#ifndef STEINWURF_VERIFY_VARIADIC_MACRO_HPP
-#define STEINWURF_VERIFY_VARIADIC_MACRO_HPP
+// Copyright (c) Steinwurf ApS 2016.
+// All Rights Reserved
+//
+// Distributed under the "BSD License". See the accompanying LICENSE.rst file.
+
+#pragma once
 
 // ----------------------------------------------------
 // Variadic Function Helper Macro
@@ -21,14 +25,12 @@
                         8, 7, 6, 5, 4, 3, 2, 1, 0))
 
 #define __VERIFY_OVERLOAD_MACRO2(name, count) name##count
-#define __VERIFY_OVERLOAD_MACRO1(name, count)                                  \
+#define __VERIFY_OVERLOAD_MACRO1(name, count) \
   __VERIFY_OVERLOAD_MACRO2(name, count)
-#define __VERIFY_OVERLOAD_MACRO(name, count)                                   \
+#define __VERIFY_OVERLOAD_MACRO(name, count) \
   __VERIFY_OVERLOAD_MACRO1(name, count)
 
-#define __VERIFY_OVERLOAD(name, ...)                                           \
-  __VERIFY_GLUE(                                                               \
-      __VERIFY_OVERLOAD_MACRO(name, __VERIFY_COUNT_ARGS_MAX32(__VA_ARGS__)),   \
+#define __VERIFY_OVERLOAD(name, ...)                                         \
+  __VERIFY_GLUE(                                                             \
+      __VERIFY_OVERLOAD_MACRO(name, __VERIFY_COUNT_ARGS_MAX32(__VA_ARGS__)), \
       (__VA_ARGS__))
-
-#endif // STEINWURF_VERIFY_VARIADIC_FUNCTION_MACRO_HPP

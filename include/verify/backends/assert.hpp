@@ -1,27 +1,32 @@
-#ifndef STEINWURF_VERIFY_BACKENDS_ASSERT_HPP
-#define STEINWURF_VERIFY_BACKENDS_ASSERT_HPP
+// Copyright (c) Steinwurf ApS 2016.
+// All Rights Reserved
+//
+// Distributed under the "BSD License". See the accompanying LICENSE.rst file.
 
-#include "../verify_variadic_overload_macro.hpp"
+#pragma once
+
 #include <cstdlib>
 #include <iostream>
 
-#define __verify_assert1(condition)                                            \
-  do {                                                                         \
-    if (!(condition)) {                                                        \
-      std::cerr << "Assertion failed: (" #condition ") in " << __FILE__        \
-                << ", function " << __FUNCTION__ << ", line " << __LINE__      \
-                << "." << std::endl;                                           \
-      std::abort();                                                            \
-    }                                                                          \
+#include "../verify_variadic_overload_macro.hpp"
+
+#define __verify_assert1(condition)                                       \
+  do {                                                                    \
+    if (!(condition)) {                                                   \
+      std::cerr << "Assertion failed: (" #condition ") in " << __FILE__   \
+                << ", function " << __FUNCTION__ << ", line " << __LINE__ \
+                << "." << std::endl;                                      \
+      std::abort();                                                       \
+    }                                                                     \
   } while (false)
-#define __verify_assert2(condition, message)                                   \
-  do {                                                                         \
-    if (!(condition)) {                                                        \
-      std::cerr << "Assertion failed: (" #condition ") in " << __FILE__        \
-                << ", function " << __FUNCTION__ << ", line " << __LINE__      \
-                << ": " << message << "." << std::endl;                        \
-      std::abort();                                                            \
-    }                                                                          \
+#define __verify_assert2(condition, message)                              \
+  do {                                                                    \
+    if (!(condition)) {                                                   \
+      std::cerr << "Assertion failed: (" #condition ") in " << __FILE__   \
+                << ", function " << __FUNCTION__ << ", line " << __LINE__ \
+                << ": " << message << "." << std::endl;                   \
+      std::abort();                                                       \
+    }                                                                     \
   } while (false)
 
 #define VERIFY_IMPL1(expr) __verify_assert1(expr)
@@ -60,10 +65,4 @@
 #define VERIFY_IMPL31(expr, err, ...) VERIFY_IMPL2(expr, err)
 #define VERIFY_IMPL32(expr, err, ...) VERIFY_IMPL2(expr, err)
 
-#ifndef NDEBUG
 #define VERIFY_IMPL(...) __VERIFY_OVERLOAD(VERIFY_IMPL, __VA_ARGS__)
-#else
-#define VERIFY_IMPL(...) ((void)0)
-#endif // NDEBUG
-
-#endif // STEINWURF_VERIFY_BACKENDS_ASSERT_HPP

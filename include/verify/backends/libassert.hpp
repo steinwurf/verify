@@ -1,13 +1,11 @@
-#ifndef STEINWURF_VERIFY_BACKENDS_LIBASSERT_HPP
-#define STEINWURF_VERIFY_BACKENDS_LIBASSERT_HPP
+// Copyright (c) Steinwurf ApS 2016.
+// All Rights Reserved
+//
+// Distributed under the "BSD License". See the accompanying LICENSE.rst file.
+
+#pragma once
 
 #include <libassert/assert.hpp>
 
-#ifndef NDEBUG
-#define VERIFY_IMPL(expr, ...)                                                 \
+#define VERIFY_IMPL(expr, ...) \
   LIBASSERT_INVOKE(expr, "VERIFY", assertion, , __VA_ARGS__)
-#else
-#define VERIFY_IMPL(...) ((void)0)
-#endif // NDEBUG
-
-#endif // STEINWURF_VERIFY_BACKENDS_LIBASSERT_HPP

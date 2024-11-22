@@ -6,7 +6,8 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Fixed issue with clang 19.
+* Minor: Added license headers to all files.
 
 5.2.0
 -----
