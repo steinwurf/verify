@@ -8,4 +8,4 @@
 #include <libassert/assert.hpp>
 
 #define VERIFY_IMPL(expr, ...) \
-  LIBASSERT_INVOKE(expr, "VERIFY", assertion, , __VA_ARGS__)
+    LIBASSERT_INVOKE(expr, "VERIFY", assertion, , __VA_ARGS__)

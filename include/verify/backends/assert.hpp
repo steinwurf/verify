@@ -10,24 +10,28 @@
 
 #include "../verify_variadic_overload_macro.hpp"
 
-#define __verify_assert1(condition)                                       \
-  do {                                                                    \
-    if (!(condition)) {                                                   \
-      std::cerr << "Assertion failed: (" #condition ") in " << __FILE__   \
-                << ", function " << __FUNCTION__ << ", line " << __LINE__ \
-                << "." << std::endl;                                      \
-      std::abort();                                                       \
-    }                                                                     \
-  } while (false)
-#define __verify_assert2(condition, message)                              \
-  do {                                                                    \
-    if (!(condition)) {                                                   \
-      std::cerr << "Assertion failed: (" #condition ") in " << __FILE__   \
-                << ", function " << __FUNCTION__ << ", line " << __LINE__ \
-                << ": " << message << "." << std::endl;                   \
-      std::abort();                                                       \
-    }                                                                     \
-  } while (false)
+#define __verify_assert1(condition)                                           \
+    do                                                                        \
+    {                                                                         \
+        if (!(condition))                                                     \
+        {                                                                     \
+            std::cerr << "Assertion failed: (" #condition ") in " << __FILE__ \
+                      << ", function " << __FUNCTION__ << ", line "           \
+                      << __LINE__ << "." << std::endl;                        \
+            std::abort();                                                     \
+        }                                                                     \
+    } while (false)
+#define __verify_assert2(condition, message)                                  \
+    do                                                                        \
+    {                                                                         \
+        if (!(condition))                                                     \
+        {                                                                     \
+            std::cerr << "Assertion failed: (" #condition ") in " << __FILE__ \
+                      << ", function " << __FUNCTION__ << ", line "           \
+                      << __LINE__ << ": " << message << "." << std::endl;     \
+            std::abort();                                                     \
+        }                                                                     \
+    } while (false)
 
 #define VERIFY_IMPL1(expr) __verify_assert1(expr)
 #define VERIFY_IMPL2(expr, err) __verify_assert2(expr, err)
