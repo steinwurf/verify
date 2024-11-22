@@ -20,8 +20,8 @@
         "name": "libassert-source",
         "resolver": "git",
         "method": "checkout",
-        "checkout": "9e06e4d57b96c003375b8f7824a2fb67c946e726",
-        "source": "github.com/steinwurf-sofie/libassert.git"
+        "checkout": "df3a4bdfa5d6f80999ae0b381b298dfd1c277402",
+        "source": "github.com/steinwurf/libassert-source.git"
     },
     {
         "name": "zlib-source",

@@ -6,7 +6,9 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Minor: Switched to use https://github.com/steinwurf/libassert-source
+  as libassert source repository.
+* Minor: Update libassert to version 2.1.2
 
 5.1.4
 -----
