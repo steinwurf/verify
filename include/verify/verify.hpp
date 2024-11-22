@@ -1,6 +1,14 @@
-#ifndef STEINWURF_VERIFY_HPP
-#define STEINWURF_VERIFY_HPP
+// Copyright (c) Steinwurf ApS 2016.
+// All Rights Reserved
+//
+// Distributed under the "BSD License". See the accompanying LICENSE.rst file.
 
+#pragma once
+
+#ifdef NDEBUG
+#define VERIFY(...) ((void)0)
+#else
+// Select the appropriate backend based on the C++ standard and configuration.
 #ifdef STEINWURF_VERIFY_USE_LIBASSERT
 #include "backends/libassert.hpp"
 #else
@@ -12,5 +20,4 @@
 #else
 #define VERIFY(...) VERIFY_IMPL(__VA_ARGS__)
 #endif // _MSC_VER
-
-#endif // STEINWURF_VERIFY_HPP
+#endif // NDEBUG

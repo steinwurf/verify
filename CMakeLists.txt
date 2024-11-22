@@ -61,11 +61,13 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # Clang gets really mad at libassert for using zero arguments internally to
     # `...` VA_ARGS.
     target_compile_options(${PROJECT_NAME} PUBLIC -pedantic-errors
+        -Wno-c++20-extensions
         -Wno-gnu-zero-variadic-macro-arguments)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     # Clang gets really mad at libassert for using zero arguments internally to
     # `...` VA_ARGS.
     target_compile_options(${PROJECT_NAME} PUBLIC -pedantic-errors
+        -Wno-c++20-extensions
         -Wno-gnu-zero-variadic-macro-arguments)
 else()
     target_compile_options(${PROJECT_NAME} PUBLIC -pedantic-errors)
