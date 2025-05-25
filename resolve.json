@@ -11,8 +11,8 @@
         "name": "libassert-source",
         "resolver": "git",
         "method": "checkout",
-        "checkout": "df3a4bdfa5d6f80999ae0b381b298dfd1c277402",
-        "source": "github.com/steinwurf/libassert-source.git"
+        "checkout": "v2.1.5",
+        "source": "github.com:jeremy-rifkin/libassert.git"
     },
     {
         "name": "zlib-source",

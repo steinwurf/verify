@@ -5,19 +5,42 @@
 
 #pragma once
 
-#ifdef NDEBUG
-#define VERIFY(...) ((void)0)
-#else
-// Select the appropriate backend based on the C++ standard and configuration.
-#ifdef STEINWURF_VERIFY_USE_LIBASSERT
-#include "backends/libassert.hpp"
-#else
-#include "backends/assert.hpp"
-#endif // STEINWURF_VERIFY_USE_LIBASSERT
+// #ifdef NDEBUG
+// #define VERIFY(...) ((void)0)
+// #else
+// // Select the appropriate backend based on the C++ standard and
+// configuration. #ifdef STEINWURF_VERIFY_USE_LIBASSERT #include
+// "backends/libassert.hpp" #else #include "backends/assert.hpp" #endif //
+// STEINWURF_VERIFY_USE_LIBASSERT
 
-#ifdef _MSC_VER
-#define VERIFY VERIFY_IMPL
+// #ifdef _MSC_VER
+// #define VERIFY VERIFY_IMPL
+// #else
+// #define VERIFY(...) VERIFY_IMPL(__VA_ARGS__)
+// #endif // _MSC_VER
+// #endif // NDEBUG
+
+////////////////////////////////////
+
+#pragma once
+
+#ifdef STEINWURF_LIBASSERT
+
+#include <libassert/assert.hpp>
+
+#define DEBUG_VERIFY(...) LIBASSERT_DEBUG_ASSERT(__VA_ARGS__)
+#define VERIFY(...) LIBASSERT_ASSERT(__VA_ARGS__)
+
 #else
-#define VERIFY(...) VERIFY_IMPL(__VA_ARGS__)
-#endif // _MSC_VER
-#endif // NDEBUG
+
+#include <cassert>
+
+// Picks only the first argument from __VA_ARGS__ safely
+#define ASSERT_CONDITION_IMPL(arg1, ...) arg1
+#define ASSERT_CONDITION(...) ASSERT_CONDITION_IMPL(__VA_ARGS__, dummy)
+
+// Use only the first argument (the condition)
+#define DEBUG_VERIFY(...) assert((ASSERT_CONDITION(__VA_ARGS__)))
+#define VERIFY(...) assert((ASSERT_CONDITION(__VA_ARGS__)))
+
+#endif

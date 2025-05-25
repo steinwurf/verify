@@ -14,7 +14,7 @@ TEST(test_verify, simple)
 {
     int a = 42;
     VERIFY(a == 42);
-    VERIFY(a = 21);
+    VERIFY(a == 21);
     VERIFY(a == 21);
 }
 

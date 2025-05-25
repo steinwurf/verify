@@ -27,9 +27,9 @@ def options(ctx):
         help="Whether to not use system zlib when building verify",
     )
     opts.add_option(
-        "--no-use-libassert",
+        "--no_libassert",
         default=False,
-        dest="no_use_libassert",
+        dest="no_libassert",
         action="store_true",
         help="Whether to not use libassert when building verify",
     )
@@ -39,9 +39,9 @@ def configure(ctx):
 
     ctx.load("cmake")
 
-    if ctx.options.no_use_libassert:
+    if ctx.options.no_libassert:
         ctx.env.CMAKE_CONFIGURE_ARGS += [
-            "-DSTEINWURF_VERIFY_USE_LIBASSERT=OFF",
+            "-DSTEINWURF_LIBASSERT=OFF",
         ]
 
     if ctx.is_toplevel():

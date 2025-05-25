@@ -28,10 +28,10 @@ endif()
 # Include common CMake settings
 include("${STEINWURF_RESOLVE}/toolchains/common_settings.cmake")
 
-if(NOT DEFINED STEINWURF_VERIFY_USE_LIBASSERT)
-    message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, using YES")
+if(NOT DEFINED STEINWURF_LIBASSERT)
+    message(STATUS "STEINWURF_LIBASSERT not defined, using ON")
 
-    set(STEINWURF_VERIFY_USE_LIBASSERT YES)
+    set(STEINWURF_LIBASSERT ON)
 endif()
 
 add_library(${PROJECT_NAME} STATIC src/verify.cpp)
@@ -69,7 +69,7 @@ install(
     FILES_MATCHING
     PATTERN *.hpp)
 
-if(STEINWURF_VERIFY_USE_LIBASSERT)
+if(STEINWURF_LIBASSERT)
     if(NOT TARGET ZLIB::ZLIB)
         find_package(ZLIB)
 
@@ -85,7 +85,7 @@ if(STEINWURF_VERIFY_USE_LIBASSERT)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC libassert::assert)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_LIBASSERT)
 endif()
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
