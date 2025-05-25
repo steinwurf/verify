@@ -8,6 +8,8 @@
 #include <string>
 #include <verify/verify.hpp>
 
+#include "is_running_valgrind.hpp"
+
 TEST(test_verify, simple)
 {
     int a = 42;
@@ -38,6 +40,11 @@ TEST(test_verify, failing)
     // TODO: Do nothing, tests rely on NDEBUG.
     GTEST_SKIP();
 #else
-    EXPECT_DEATH(trigger_verify(), "expected key not found");
+
+    if (!is_running_valgrind())
+    {
+        // Only run if not under Valgrind -it will fail when using EXPECT_DEATH
+        EXPECT_DEATH(trigger_verify(), "expected key not found");
+    }
 #endif
 }

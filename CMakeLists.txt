@@ -7,10 +7,6 @@ project(
     HOMEPAGE_URL "https://github.com/steinwurf/verify"
     LANGUAGES CXX)
 
-if(MSVC)
-    cmake_policy(SET CMP0091 NEW)
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-endif()
 
 find_package(Python COMPONENTS Interpreter)
 
@@ -27,22 +23,14 @@ if(NOT DEFINED STEINWURF_RESOLVE)
     endif()
 
     set(STEINWURF_RESOLVE "${CMAKE_CURRENT_SOURCE_DIR}/resolve_symlinks")
-    set(STEINWURF_TOP_NAME ${PROJECT_NAME})
 endif()
+
+# Include common CMake settings
+include("${STEINWURF_RESOLVE}/toolchains/common_settings.cmake")
 
 if(NOT DEFINED STEINWURF_VERIFY_USE_LIBASSERT)
     message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT not defined, using YES")
 
-    # if(WIN32)
-    # # Currently libassert doesn't seem to build against windows with our wrapping
-    # # https://github.com/steinwurf/libassert/pull/1
-    # set(STEINFWURF_VERIFY_USE_LIBASSERT NO)
-    # message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to NO due to WIN32 environment")
-    # else()
-    # # MacOS / *UNIX-likes build correctly with libassert. Enable these by default.
-    # set(STEINWURF_VERIFY_USE_LIBASSERT YES)
-    # message(STATUS "STEINWURF_VERIFY_USE_LIBASSERT autodetected to YES")
-    # endif()
     set(STEINWURF_VERIFY_USE_LIBASSERT YES)
 endif()
 
@@ -100,40 +88,32 @@ if(STEINWURF_VERIFY_USE_LIBASSERT)
     target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
-if(${PROJECT_NAME} STREQUAL ${STEINWURF_TOP_NAME})
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     enable_testing()
 
-    if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-        # For Windows: Prevent overriding the parent project's compiler/linker
-        # settings
-        set(gtest_force_shared_crt
-            ON
-            CACHE BOOL "" FORCE)
-    endif()
-
     # Google Test dependency
-    add_subdirectory("${STEINWURF_RESOLVE}/gtest-source" gtest_main EXCLUDE_FROM_ALL)
+    add_subdirectory("${STEINWURF_RESOLVE}/gtest" gtest_main EXCLUDE_FROM_ALL)
 
     # Define library
-    file(GLOB_RECURSE verify_test_sources test/**/*.cpp)
+    file(GLOB_RECURSE verify_test_sources test/*.cpp)
 
     # Build test executable
     add_executable(verify_tests ${verify_test_sources})
     target_link_libraries(verify_tests PUBLIC steinwurf::verify)
-    target_link_libraries(verify_tests PUBLIC gtest_main)
+    target_link_libraries(verify_tests PUBLIC steinwurf::gtest)
 
     # Make sure we compile with C++17 and do not use compiler specific extensions
     set_property(TARGET verify_tests PROPERTY CXX_STANDARD 17)
     set_property(TARGET verify_tests PROPERTY CXX_EXTENSIONS OFF)
 
     if(MSVC)
-        add_compile_options(/W4)
+        target_compile_options(verify_tests PRIVATE /W4)
 
         # Make Release builds explicitly keep NDEBUG unset.
         string(REGEX REPLACE "/DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
         string(REGEX REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
     else()
-        add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+        target_compile_options(verify_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
         # Make Release builds explicitly keep NDEBUG unset.
         string(REGEX REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")

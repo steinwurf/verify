@@ -1,19 +1,10 @@
 [
     {
-        "name": "waf-tools",
-        "resolver": "git",
-        "method": "semver",
-        "major": 5,
-        "sources": [
-            "github.com/steinwurf/waf-tools.git"
-        ]
-    },
-    {
         "name": "gtest",
         "resolver": "git",
         "internal": true,
         "method": "semver",
-        "major": 5,
+        "major": 6,
         "source": "github.com/steinwurf/gtest.git"
     },
     {
@@ -29,5 +20,15 @@
         "method": "checkout",
         "checkout": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
         "source": "github.com/madler/zlib.git"
+    },
+    {
+        "name": "toolchains",
+        "internal": true,
+        "resolver": "git",
+        "method": "semver",
+        "major": 1,
+        "sources": [
+            "github.com/steinwurf/cmake-toolchains.git"
+        ]
     }
 ]
