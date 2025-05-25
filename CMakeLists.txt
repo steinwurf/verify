@@ -70,6 +70,7 @@ install(
     PATTERN *.hpp)
 
 if(STEINWURF_LIBASSERT)
+
     if(NOT TARGET ZLIB::ZLIB)
         find_package(ZLIB)
 
