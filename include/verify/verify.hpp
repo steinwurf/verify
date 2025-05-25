@@ -28,8 +28,11 @@
 
 #include <libassert/assert.hpp>
 
-#define DEBUG_VERIFY(...) LIBASSERT_DEBUG_ASSERT(__VA_ARGS__)
-#define VERIFY(...) LIBASSERT_ASSERT(__VA_ARGS__)
+// Make overloads for different argument counts
+#define EXPAND(x) x
+
+#define DEBUG_VERIFY(...) EXPAND(LIBASSERT_DEBUG_ASSERT(__VA_ARGS__))
+#define VERIFY(...) EXPAND(LIBASSERT_ASSERT(__VA_ARGS__))
 
 #else
 
