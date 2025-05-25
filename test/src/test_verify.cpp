@@ -23,7 +23,7 @@ TEST(test_verify, complex)
 {
     std::map<std::string, int> example_map{{"test", 1}, {"foo", 2}};
     auto it = example_map.find("foo");
-    VERIFY(it != example_map.cend(), "expected key not found", example_map,
+    VERIFY(it == example_map.cend(), "expected key not found", example_map,
            "hello", "world");
 }
 
@@ -31,7 +31,7 @@ void trigger_verify()
 {
     std::map<std::string, int> example_map{{"test", 1}, {"foo", 2}};
     auto it = example_map.find("bar");
-    VERIFY(it == example_map.cend(), "expected key not found", example_map,
+    VERIFY(it != example_map.cend(), "expected key not found", example_map,
            "hello", "world");
 }
 
