@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Waf Configure
-        run: python3 waf configure --git_protocol=git@ --cxx_debug 
+        run: python3 waf configure --git_protocol=git@ 
 
       - name: Waf Build
         run: python3 waf build
