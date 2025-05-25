@@ -28,7 +28,7 @@
 
 #include <libassert/assert.hpp>
 
-// Make overloads for different argument counts
+// This is needed do to MSVC++ not supporting variadic macros properly
 #define EXPAND(x) x
 
 #define DEBUG_VERIFY(...) EXPAND(LIBASSERT_DEBUG_ASSERT(__VA_ARGS__))
