@@ -13,7 +13,7 @@
 TEST(test_verify, simple)
 {
     int a = 42;
-    LIBASSERT_ASSERT(a == 42);
+    VERIFY(a == 42);
     a = 21;
     LIBASSERT_ASSERT(a == 21);
     LIBASSERT_ASSERT(a == 21);
