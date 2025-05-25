@@ -6,7 +6,9 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Major: Only CMake build system is supported.
+* Major: Simplified the use of libassert. The use of cassert also no longer
+  support a message. 
 
 5.3.0
 -----

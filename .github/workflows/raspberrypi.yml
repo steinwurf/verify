@@ -1,22 +1,22 @@
 name: Raspberry Pi
+
 on:
-  workflow_dispatch:
-    inputs:
-      extra_resolve_options:
-        description: Extra Resolve Options
-        required: false
   schedule:
-  - cron: 0 1 * * *
+    - cron: 0 1 * * * # Nightly at 01:00 UTC
   push:
     branches:
-    - master
+      - master
   pull_request:
+
 jobs:
-  cross-compile:
+  cross_compile:
     timeout-minutes: 45
     strategy:
       fail-fast: false
-    runs-on: [self-hosted, docker, builder]
+    runs-on:
+      - self-hosted
+      - docker
+      - builder
     name: Raspberry Pi Cross-compile
     container:
       image: ghcr.io/steinwurf/gcc-8.3.0-raspberrypi-aarch64:1.0.0
@@ -26,43 +26,48 @@ jobs:
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
+
       - name: Waf Configure
-        uses: nick-fields/retry@v3
-        with:
-          max_attempts: 3
-          timeout_minutes: 15
-          command: python3 waf configure --git_protocol=git@ --cxx_debug ${{ inputs.extra_resolve_options}}
+        run: python3 waf configure --git_protocol=git@ 
+
       - name: Waf Build
-        run: |
-          echo "::add-matcher::.github/gcc-problem-matcher.json"
-          python3 waf
+        run: python3 waf build
+
       - name: Gather Test Binary and Input files
         run: |
           mkdir artifact
           mv build_current/verify_tests ./artifact
+
       - name: Upload Test Binary Artifact
         uses: actions/upload-artifact@v4
         with:
           name: verify_tests
           path: artifact
           retention-days: 1
+
   tests:
-    needs: cross-compile
+    needs: cross_compile
     strategy:
       fail-fast: false
-    runs-on: [self-hosted, raspberry_pi_4]
+    runs-on:
+      - self-hosted
+      - raspberry_pi_4
     name: Run Tests
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
+
       - name: Download Test Binary Artifact
         uses: actions/download-artifact@v4
         with:
           name: verify_tests
+
       - name: List files
         run: ls -l
+
       - name: Run all tests
         run: chmod +x verify_tests
+
       - name: Get backtrace on failure if available
         run: |
           if ! ./verify_tests; then
@@ -70,6 +75,18 @@ jobs:
             gdb -batch -ex "r" -ex "thread apply all backtrace full" -ex "quit" ./verify_tests
             exit 1
           fi
+
+  workflow-keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: [self-hosted, vm, ubuntu-current]
+    permissions:
+      actions: write
+    steps:
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install -y gh
+      - uses: liskin/gh-workflow-keepalive@v1
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}

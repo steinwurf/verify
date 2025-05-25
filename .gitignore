@@ -12,3 +12,4 @@ build_current
 .waf*
 .lock-waf*
 .lock-waf_linux_build
+.vscode
