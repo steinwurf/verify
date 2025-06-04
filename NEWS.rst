@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Remove -pedantic-errors from CMakeLists.txt.
 
 6.0.0
 -----
