@@ -15,8 +15,11 @@
 #define EXPAND(x) x
 
 #define DEBUG_VERIFY(...) EXPAND(LIBASSERT_DEBUG_ASSERT(__VA_ARGS__))
-#define VERIFY(...) EXPAND(LIBASSERT_ASSERT(__VA_ARGS__))
-
+#if defined(__GNUC__) || defined(__clang__)
+#  define VERIFY(expr, ...) EXPAND(LIBASSERT_ASSERT((expr) , ##__VA_ARGS__))
+#else
+#  define VERIFY(expr, ...) EXPAND(LIBASSERT_ASSERT((expr), __VA_ARGS__))
+#endif
 #else
 
 #include <cassert>
