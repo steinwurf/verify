@@ -90,6 +90,12 @@ if(STEINWURF_LIBASSERT)
 endif()
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
+  file(GLOB_RECURSE verify_example_sources example/*.cpp)
+  add_executable(verify_example ${verify_example_sources})
+  target_link_libraries(verify_example PUBLIC steinwurf::verify)
+endif()
+
+if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     enable_testing()
 
     # Google Test dependency
