@@ -15,7 +15,7 @@
 #define EXPAND(x) x
 
 #define DEBUG_VERIFY(...) EXPAND(LIBASSERT_DEBUG_ASSERT(__VA_ARGS__))
-#define VERIFY1(expr, ...) EXPAND(LIBASSERT_ASSERT((expr), __VA_ARGS__))
+#define VERIFY(expr, ...) EXPAND(LIBASSERT_ASSERT((expr), __VA_ARGS__))
 
 #else
 
