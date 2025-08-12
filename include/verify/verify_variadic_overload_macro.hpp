@@ -33,4 +33,4 @@
 #define __VERIFY_OVERLOAD(name, ...)                                           \
     __VERIFY_GLUE(                                                             \
         __VERIFY_OVERLOAD_MACRO(name, __VERIFY_COUNT_ARGS_MAX32(__VA_ARGS__)), \
-        (__VA_ARGS__))
+        (__VA_ARGS__))                                                         \
