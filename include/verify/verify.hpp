@@ -15,25 +15,35 @@
 #define EXPAND(x) x
 
 #define DEBUG_VERIFY(...) EXPAND(LIBASSERT_DEBUG_ASSERT(__VA_ARGS__))
-// If you already have EXPAND, keep using it. Otherwise:
-#define EXPAND(x) x
 
-// Choose VERIFY_WITH_MSG when there are >= 2 args, else VERIFY_NO_MSG.
-// Add more placeholders if you might pass >10 total args.
-#define VERIFY_CHOOSER(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10, NAME, ...) NAME
+// Count macro arguments (works on GCC/Clang/MSVC in C++11)
+#define VA_NARGS_IMPL(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,N,...) N
+#define VA_NARGS(...) VA_NARGS_IMPL(__VA_ARGS__,10,9,8,7,6,5,4,3,2,1,0)
 
-#define VERIFY(...) \
-    EXPAND(VERIFY_CHOOSER(__VA_ARGS__, \
-        VERIFY_WITH_MSG, VERIFY_WITH_MSG, VERIFY_WITH_MSG, VERIFY_WITH_MSG, \
-        VERIFY_WITH_MSG, VERIFY_WITH_MSG, VERIFY_WITH_MSG, VERIFY_WITH_MSG, \
-        VERIFY_WITH_MSG, /* if only 1 arg, fall through to: */ \
-        VERIFY_NO_MSG)(__VA_ARGS__))
+// Turn a number into a macro name VERIFY_<N>
+#define VERIFY_DISPATCH(N) VERIFY_DISPATCH_(N)
+#define VERIFY_DISPATCH_(N) VERIFY_##N
 
-// Force parentheses around the condition to fix operator precedence issues.
-#define VERIFY_NO_MSG(cond) \
+// Public macro
+#define VERIFY(...) EXPAND(VERIFY_DISPATCH(VA_NARGS(__VA_ARGS__))(__VA_ARGS__))
+
+// 1-arg form: no variadic use, so no empty-VA trouble, and condition is parenthesized
+#define VERIFY_1(cond) \
     EXPAND(LIBASSERT_ASSERT((cond)))
 
-#define VERIFY_WITH_MSG(cond, ...) \
+// 2+ args all forward to the same helper
+#define VERIFY_2(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_3(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_4(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_5(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_6(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_7(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_8(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_9(...) VERIFY_2PLUS(__VA_ARGS__)
+#define VERIFY_10(...) VERIFY_2PLUS(__VA_ARGS__)
+
+// 2+ helper: parenthesize the condition; forward message/vars unchanged
+#define VERIFY_2PLUS(cond, ...) \
     EXPAND(LIBASSERT_ASSERT((cond), __VA_ARGS__))
 
 
