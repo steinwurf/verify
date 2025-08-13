@@ -11,7 +11,7 @@ import os.path
 from waflib import Build, Errors, Logs
 
 APPNAME = "verify"
-VERSION = "6.0.1"
+VERSION = "6.0.2"
 
 
 def options(ctx):
