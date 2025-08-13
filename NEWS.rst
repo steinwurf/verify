@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Reverted to v5 regarding the include/verify because in the new version a warning triggered when using clang.
 
 6.0.1
 -----
