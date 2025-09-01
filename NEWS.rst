@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Patch: Fix macros so that libassert is now re-enabled when available.
 
 6.0.2
 -----
@@ -20,7 +20,7 @@ Latest
 -----
 * Major: Only CMake build system is supported.
 * Major: Simplified the use of libassert. The use of cassert also no longer
-  support a message. 
+  support a message.
 
 5.3.0
 -----

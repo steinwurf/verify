@@ -48,13 +48,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     # Clang gets really mad at libassert for using zero arguments internally to
     # `...` VA_ARGS.
-    target_compile_options(${PROJECT_NAME} PUBLIC 
+    target_compile_options(${PROJECT_NAME} PUBLIC
         -Wno-c++20-extensions
         -Wno-gnu-zero-variadic-macro-arguments)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     # Clang gets really mad at libassert for using zero arguments internally to
     # `...` VA_ARGS.
-    target_compile_options(${PROJECT_NAME} PUBLIC 
+    target_compile_options(${PROJECT_NAME} PUBLIC
         -Wno-c++20-extensions
         -Wno-gnu-zero-variadic-macro-arguments)
 else()
@@ -86,7 +86,7 @@ if(STEINWURF_LIBASSERT)
 
     target_link_libraries(${PROJECT_NAME} PUBLIC libassert::assert)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_LIBASSERT)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
 endif()
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
