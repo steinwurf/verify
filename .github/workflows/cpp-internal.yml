@@ -41,7 +41,7 @@ jobs:
       - self-hosted
       - vm
       - ${{ matrix.config.runner }}
-    name: ${{ matrix.config.name }} ${{ matrix.no_libassert && 'no libassert' }}
+    name: ${{ matrix.config.name }} ${{ matrix.no_libassert && 'no libassert' || '' }}
     steps:
       # This is sometimes needed when running docker builds since these
       # sometimes produce files with root ownership
@@ -119,7 +119,7 @@ jobs:
       - ${{ matrix.config.arch }}
       - cmake
       - builder
-    name: ${{ matrix.config.name }} ${{ matrix.no_libassert && 'no libassert' }}
+    name: ${{ matrix.config.name }} ${{ matrix.no_libassert && 'no libassert' || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -137,7 +137,7 @@ jobs:
       matrix:
         no_libassert: [false, true]
     runs-on: [self-hosted, windows, vm, windows-current]
-    name: Windows ${{ matrix.no_libassert && 'no libassert' }}
+    name: Windows ${{ matrix.no_libassert && 'no libassert' || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
