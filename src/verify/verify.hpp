@@ -9,6 +9,7 @@
 #define VERIFY(...) ((void)0)
 #else
 // Select the appropriate backend based on the C++ standard and configuration.
+// These will define the VERIFY_IMPL1 and VERIFY_IMPL2 macros.
 #ifdef STEINWURF_VERIFY_USE_LIBASSERT
 #include "backends/libassert.hpp"
 #else

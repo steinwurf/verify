@@ -13,7 +13,11 @@
 TEST(test_verify, simple)
 {
     int a = 42;
-    VERIFY(a == 42);
+    VERIFY(a == 42, "OK");
+    VERIFY(a == 42, "OK", "OK");
+    VERIFY(a == 42, "OK", "OK", "OK");
+    VERIFY(a == 42, "OK", "OK", "OK", "OK");
+    VERIFY(a == 42, "OK", "OK", "OK", "OK", "OK");
     a = 21;
     VERIFY(a == 21);
     VERIFY(a == 21);
@@ -41,7 +45,6 @@ TEST(test_verify, failing)
     // TODO: Do nothing, tests rely on NDEBUG.
     GTEST_SKIP();
 #else
-
     if (!is_running_valgrind())
     {
         // Only run if not under Valgrind -it will fail when using EXPECT_DEATH
