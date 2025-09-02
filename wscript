@@ -1,15 +1,6 @@
 #! /usr/bin/env python
 # encoding: utf-8
 
-import shutil
-import os
-import platform
-import waflib
-import hashlib
-import os.path
-
-from waflib import Build, Errors, Logs
-
 APPNAME = "verify"
 VERSION = "6.0.2"
 
@@ -19,13 +10,7 @@ def options(ctx):
     ctx.load("cmake")
 
     opts = ctx.add_option_group("Verify Options")
-    opts.add_option(
-        "--no-use-system-zlib",
-        default=False,
-        dest="no_use_system_zlib",
-        action="store_true",
-        help="Whether to not use system zlib when building verify",
-    )
+
     opts.add_option(
         "--no_libassert",
         default=False,

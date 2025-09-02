@@ -34,13 +34,11 @@ if(NOT DEFINED STEINWURF_LIBASSERT)
     set(STEINWURF_LIBASSERT ON)
 endif()
 
-add_library(${PROJECT_NAME} STATIC src/verify.cpp)
+file(GLOB_RECURSE verify_sources ./src/*.cpp)
+add_library(${PROJECT_NAME} STATIC ${verify_sources})
+target_include_directories(${PROJECT_NAME} PUBLIC src)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_EXTENSIONS OFF)
-target_include_directories(${PROJECT_NAME} INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
-)
 
 # Enable pedantic errors
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
@@ -64,7 +62,7 @@ endif()
 add_library(steinwurf::verify ALIAS ${PROJECT_NAME})
 
 install(
-    DIRECTORY ./include
+    DIRECTORY ./src
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include
     FILES_MATCHING
     PATTERN *.hpp)
