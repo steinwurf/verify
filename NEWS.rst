@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+6.0.3
+-----
 * Patch: Fix macros so that libassert is now re-enabled when available.
 
 6.0.2
