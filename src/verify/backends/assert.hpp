@@ -21,36 +21,41 @@
 #include <unistd.h>
 #endif
 
-// Non-constexpr runtime version (platform-specific)
-inline const char* binary_name_runtime()
+// Get the binary name at runtime. This is used to make the error message
+// mimic that of standard assert.
+static inline auto binary_name_runtime() -> std::string
 {
 #if defined(_WIN32)
-    static char exe_path[MAX_PATH] = {0};
-    if (exe_path[0] == 0)
+    char exe_path[MAX_PATH];
+    auto len = GetModuleFileNameA(NULL, exe_path, MAX_PATH);
+    // if the function succeeds, the return value is the length of the string
+    // that is copied to the buffer, in characters, not including the
+    // terminating null character. If the buffer is too small to hold the module
+    // name, the string is truncated to nSize characters including the
+    // terminating null character, the function returns nSize, and the function
+    // sets the last error to ERROR_INSUFFICIENT_BUFFER.
+    if (len != 0 || len != MAX_PATH)
     {
-        GetModuleFileNameA(NULL, exe_path, MAX_PATH);
-        // Optionally extract basename here
+        return std::string(exe_path);
     }
-    return exe_path;
 #elif defined(__APPLE__)
-    static char exe_path[1024] = {0};
+    char exe_path[1024];
     uint32_t size = sizeof(exe_path);
-    if (exe_path[0] == 0 && _NSGetExecutablePath(exe_path, &size) == 0)
+    auto result = _NSGetExecutablePath(exe_path, &size);
+    if (result == 0) // the path was successfully copied
     {
-        // Optionally extract basename here
+        return std::string(exe_path);
     }
-    return exe_path;
 #elif defined(__linux__)
-    static char exe_path[PATH_MAX];
+    char exe_path[PATH_MAX];
     ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
     if (len != -1)
     {
         exe_path[len] = '\0';
+        return std::string(basename(exe_path));
     }
-    return basename(exe_path);
-#else
-    return "";
 #endif
+    return "unknown";
 }
 
 #if defined(__clang__) || defined(__GNUC__)
