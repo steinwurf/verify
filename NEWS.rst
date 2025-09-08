@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+6.0.4
+-----
 * Patch: Move no-libassert github workflows to its own file.
 * Patch: Changed assert.hpp to no longer use static variables and instead
   return a std::string. This fixes any possible issues with thread safety.
