@@ -1,4 +1,4 @@
-name: C++ Internal
+name: No libassert builds
 
 on:
   schedule:
