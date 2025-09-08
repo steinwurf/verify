@@ -7,6 +7,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 #include "../verify_variadic_overload_macro.hpp"
 
@@ -23,7 +24,7 @@
 
 // Get the binary name at runtime. This is used to make the error message
 // mimic that of standard assert.
-static inline auto binary_name_runtime() -> std::string
+static inline std::string binary_name_runtime()
 {
 #if defined(_WIN32)
     char exe_path[MAX_PATH];

@@ -1,4 +1,4 @@
-name: No libassert builds
+name: No libassert
 
 on:
   schedule:
