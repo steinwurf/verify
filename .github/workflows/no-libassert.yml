@@ -1,4 +1,5 @@
-name: C++ Internal
+name: No libassert
+
 on:
   schedule:
     - cron: 0 1 * * * # Nightly at 01:00 UTC
@@ -6,6 +7,7 @@ on:
     branches:
       - master
   pull_request:
+
 jobs:
   linux_cmake:
     timeout-minutes: 45
@@ -38,48 +40,19 @@ jobs:
       - self-hosted
       - vm
       - ${{ matrix.config.runner }}
-    name: ${{ matrix.config.name }}
+    name: ${{ matrix.config.name }} no libassert
     steps:
+      # This is sometimes needed when running docker builds since these
+      # sometimes produce files with root ownership
       - name: Ensure correct owner of repository
         run: sudo chown -R actions-runner:actions-runner .
       - name: Checkout source code
         uses: actions/checkout@v3
       - name: Waf Configure
-        run: python3 waf configure --git_protocol=git@ --cmake_toolchain=${{ matrix.config.toolchain }} --cmake_verbose
+        run: python3 waf configure --git_protocol=git@ --cmake_toolchain=${{ matrix.config.toolchain }} --cmake_verbose --no_libassert
       - name: Waf Build
         run: python3 waf build --run_tests
 
-  valgrind:
-    timeout-minutes: 45
-    runs-on:
-      - self-hosted
-      - vm
-      - ubuntu-current
-    name: Valgrind
-    steps:
-      - name: Ensure correct owner of repository
-        run: sudo chown -R actions-runner:actions-runner .
-      - name: Checkout source code
-        uses: actions/checkout@v3
-      - name: Waf Configure
-        run: python3 waf configure --git_protocol=git@ --cmake_toolchain=./resolve_symlinks/toolchains/gcc-toolchain.cmake --cmake_verbose
-      - name: Waf Build
-        run: python3 waf build --run_tests --ctest_valgrind
-  zig_toolchain_build:
-    name: Zig Toolchain Build (Docker)
-    runs-on: [self-hosted, vm, ubuntu-current]
-    container:
-      image: ghcr.io/steinwurf/build-images/zig-cpp
-      options: --user 0:0
-      volumes:
-        - /root/.ssh:/root/.ssh
-    steps:
-      - name: Checkout source code
-        uses: actions/checkout@v4
-      - name: Waf Configure with Zig Toolchain
-        run: python3 waf configure --git_protocol=git@ --cmake_toolchain=./resolve_symlinks/toolchains/zig-toolchain-x86_64-linux-musl.cmake --cmake_verbose
-      - name: Waf Build with Zig Toolchain
-        run: python3 waf build --run_tests
   macos_cmake:
     timeout-minutes: 45
     strategy:
@@ -97,40 +70,27 @@ jobs:
       - ${{ matrix.config.arch }}
       - cmake
       - builder
-    name: ${{ matrix.config.name }}
+    name: ${{ matrix.config.name }} no libassert
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Waf Configure
-        run: python3 waf configure --git_protocol=git@ --cmake_toolchain=${{ matrix.config.toolchain }} --cmake_verbose
+        run: python3 waf configure --git_protocol=git@ --cmake_toolchain=${{ matrix.config.toolchain }} --cmake_verbose --no_libassert
       - name: Waf Build
         run: python3 waf build --run_tests
+
   windows_cmake:
     timeout-minutes: 45
-    strategy:
-      fail-fast: false
     runs-on: [self-hosted, windows, vm, windows-current]
-    name: Windows
+    name: Windows no libassert
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Waf Configure
-        run: python waf configure --git_protocol=git@ --cmake_verbose
+        run: python waf configure --git_protocol=git@ --cmake_verbose --no_libassert
       - name: Waf Build
         run: python waf build --run_tests
-  clang-format:
-    timeout-minutes: 45
-    name: Clang-Format
-    runs-on: [self-hosted, vm, ubuntu-current]
-    steps:
-      - name: Ensure correct owner of repository
-        run: sudo chown -R actions-runner:actions-runner .
-      - name: Clang format version
-        run: clang-format --version
-      - name: Checkout source code
-        uses: actions/checkout@v3
-      - name: Run Clang-format
-        run: find ./ -iname *.hpp -o -iname *.cpp -o -iname *.c -o -iname *.h | xargs clang-format --dry-run --Werror
+
   workflow-keepalive:
     if: github.event_name == 'schedule'
     runs-on: [self-hosted, vm, ubuntu-current]
@@ -142,6 +102,7 @@ jobs:
           sudo apt update
           sudo apt install -y gh
       - uses: liskin/gh-workflow-keepalive@v1
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
   cancel-in-progress: true
