@@ -1,0 +1,27 @@
+{
+    "gtest": {
+        "commit_id": "8e1f80ae8618fdba4389f1b56c811ea7241569d1",
+        "resolver_info": "6.0.2",
+        "sha1": "44c35f8798a738692c902fe2b67dc0cb76a1df53"
+    },
+    "gtest-source": {
+        "commit_id": "52eb8108c5bdec04579160ae17225d66034bd723",
+        "resolver_info": "v1.17.0",
+        "sha1": "8600eafa3daedc694d3115677da0dda3af6a8633"
+    },
+    "libassert-source": {
+        "commit_id": "60667829264ae01241257df7f1c7d6dba668eb9d",
+        "resolver_info": "v2.1.5",
+        "sha1": "650d881b8cb6cc1adf354d47d6353db6ec4fd6a5"
+    },
+    "toolchains": {
+        "commit_id": "14f038b2718bc7c1728ef875066fef5de0d1f2a7",
+        "resolver_info": "1.0.8",
+        "sha1": "443cb23b0570dffd39283d8679ec393ed809302f"
+    },
+    "zlib-source": {
+        "commit_id": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+        "resolver_info": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
+        "sha1": "33283130debb8bf95a98929ff6cadd5bd9cb6a92"
+    }
+}

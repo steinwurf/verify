@@ -1,0 +1,81 @@
+name: WurfRelease
+on:
+  schedule:
+    - cron: 0 1 * * * # Nightly at 01:00 UTC
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  linux_wurf_release:
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - runner: ubuntu-current
+            name: GCC Latest
+            toolchain: "./resolve_symlinks/toolchains/gcc-toolchain.cmake"
+          - runner: ubuntu-current
+            name: Clang Latest
+            toolchain: "./resolve_symlinks/toolchains/clang-toolchain.cmake"
+          - runner: ubuntu-old
+            name: GCC Oldest
+            toolchain: "./resolve_symlinks/toolchains/gcc-toolchain.cmake"
+          - runner: ubuntu-old
+            name: Clang Oldest
+            toolchain: "./resolve_symlinks/toolchains/clang-toolchain.cmake"
+    runs-on:
+      - self-hosted
+      - vm
+      - ${{ matrix.config.runner }}
+    name: ${{ matrix.config.name }}
+    steps:
+      - name: Ensure correct owner of repository
+        run: sudo chown -R actions-runner:actions-runner .
+      - name: Checkout source code
+        uses: actions/checkout@v3
+      - name: Waf Configure (WurfRelease)
+        run: python3 waf configure --git_protocol=git@ --cmake_build_type WurfRelease --cmake_toolchain=${{ matrix.config.toolchain }} --cmake_verbose
+      - name: Waf Build
+        run: python3 waf build --run_tests
+
+  macos_wurf_release:
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - arch: ARM64
+            os: big_sur
+            name: Apple Big Sur (ARM)
+            toolchain: "./resolve_symlinks/toolchains/clang-toolchain.cmake"
+    runs-on:
+      - self-hosted
+      - macOS
+      - ${{ matrix.config.os }}
+      - ${{ matrix.config.arch }}
+      - cmake
+      - builder
+    name: ${{ matrix.config.name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Waf Configure (WurfRelease)
+        run: python3 waf configure --git_protocol=git@ --cmake_build_type WurfRelease --cmake_toolchain=${{ matrix.config.toolchain }} --cmake_verbose
+      - name: Waf Build
+        run: python3 waf build --run_tests
+
+  windows_wurf_release:
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+    runs-on: [self-hosted, windows, vm, windows-current]
+    name: Windows
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Waf Configure (WurfRelease)
+        run: python waf configure --git_protocol=git@ --cmake_build_type WurfRelease --cmake_verbose
+      - name: Waf Build
+        run: python waf build --run_tests
