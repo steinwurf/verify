@@ -6,7 +6,8 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Minor: Add ``VERIFY_DEBUG`` macro. When ``WURFRELEASE`` is defined it is a no-op;
+  when ``WURFDEBUG`` is defined it behaves like ``VERIFY``.
 
 6.0.4
 -----

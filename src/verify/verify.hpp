@@ -22,3 +22,9 @@
 #define VERIFY(...) VERIFY_IMPL(__VA_ARGS__)
 #endif // _MSC_VER
 #endif // NDEBUG
+
+#if defined(WURFDEBUG)
+#define VERIFY_DEBUG(...) VERIFY(__VA_ARGS__)
+#else
+#define VERIFY_DEBUG(...) ((void)0)
+#endif
