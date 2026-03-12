@@ -78,4 +78,6 @@ jobs:
       - name: Waf Configure (WurfRelease)
         run: python waf configure --git_protocol=git@ --cmake_build_type WurfRelease --cmake_verbose
       - name: Waf Build
-        run: python waf build --run_tests
+        run: python waf build
+      - name: Waf Run Tests
+        run: build\Debug\verify_tests.exe
