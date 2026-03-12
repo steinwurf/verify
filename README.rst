@@ -8,6 +8,9 @@ to a generic ``std::abort`` method when required for unsupported platforms.
 Usage
 -----
 
+VERIFY
+~~~~~~
+
 There's three primary ways to call Verify:
 
 1. ``VERIFY(condition)``
@@ -25,6 +28,16 @@ These arguments do respectively:
 * ``variables``: can hold a list of extra variables and will print their
   currently held data. Currently supported in ``libassert``, otherwise these
   arguments are ignored.
+
+VERIFY_DEBUG
+~~~~~~~~~~~~
+
+``VERIFY_DEBUG`` has the same syntax and usage as ``VERIFY``, but is specifically
+targeted for debug builds.
+When ``WURFDEBUG`` is defined, ``VERIFY_DEBUG`` functions identically to ``VERIFY``
+and will trigger assertions and output messages as expected.
+In all other cases, such as when building in release mode, ``VERIFY_DEBUG`` is
+effectively disabled and compiles to a no-op.
 
 Limitations
 -----------
