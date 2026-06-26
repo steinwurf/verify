@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 APPNAME = "verify"
-VERSION = "6.1.0"
+VERSION = "6.2.0"
 
 
 def options(ctx):
