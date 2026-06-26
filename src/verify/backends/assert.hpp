@@ -5,90 +5,15 @@
 
 #pragma once
 
-#include <cstdlib>
-#include <iostream>
-#include <string>
+#include <cassert>
 
 #include "../verify_variadic_overload_macro.hpp"
 
-#if defined(_WIN32)
-#include <windows.h>
-#elif defined(__APPLE__)
-#include <mach-o/dyld.h>
-#elif defined(__linux__)
-#include <libgen.h>
-#include <limits.h>
-#include <string.h>
-#include <unistd.h>
-#endif
+#define VERIFY_IMPL1(condition) assert(condition)
 
-// Get the binary name at runtime. This is used to make the error message
-// mimic that of standard assert.
-static inline std::string binary_name_runtime()
-{
-#if defined(_WIN32)
-    char exe_path[MAX_PATH];
-    auto len = GetModuleFileNameA(NULL, exe_path, MAX_PATH);
-    // if the function succeeds, the return value is the length of the string
-    // that is copied to the buffer, in characters, not including the
-    // terminating null character. If the buffer is too small to hold the module
-    // name, the string is truncated to nSize characters including the
-    // terminating null character, the function returns nSize, and the function
-    // sets the last error to ERROR_INSUFFICIENT_BUFFER.
-    if (len != 0 || len != MAX_PATH)
-    {
-        return std::string(exe_path);
-    }
-#elif defined(__APPLE__)
-    char exe_path[1024];
-    uint32_t size = sizeof(exe_path);
-    auto result = _NSGetExecutablePath(exe_path, &size);
-    if (result == 0) // the path was successfully copied
-    {
-        return std::string(exe_path);
-    }
-#elif defined(__linux__)
-    char exe_path[PATH_MAX];
-    ssize_t len = readlink("/proc/self/exe", exe_path, sizeof(exe_path) - 1);
-    if (len != -1)
-    {
-        exe_path[len] = '\0';
-        return std::string(basename(exe_path));
-    }
-#endif
-    return "unknown";
-}
-
-#if defined(__clang__) || defined(__GNUC__)
-#define VERIFY_FUNCTION __PRETTY_FUNCTION__
-#else
-#define VERIFY_FUNCTION __FUNCTION__
-#endif
-#define VERIFY_IMPL1(condition)                                           \
-    do                                                                    \
-    {                                                                     \
-        if (!(condition))                                                 \
-        {                                                                 \
-            std::cerr << binary_name_runtime() << ": " << __FILE__ << ":" \
-                      << __LINE__ << ": " << VERIFY_FUNCTION              \
-                      << ": Assertion `" << #condition << "' failed."     \
-                      << std::endl;                                       \
-            std::abort();                                                 \
-        }                                                                 \
-    } while (false)
-
-#define VERIFY_IMPL2(condition, message)                                  \
-    do                                                                    \
-    {                                                                     \
-        if (!(condition))                                                 \
-        {                                                                 \
-            std::cerr << binary_name_runtime() << ": " << __FILE__ << ":" \
-                      << __LINE__ << ": " << VERIFY_FUNCTION              \
-                      << ": Assertion `" << #condition << "' failed, "    \
-                      << #message << "." << std::endl;                    \
-            std::abort();                                                 \
-        }                                                                 \
-    } while (false)
+// Preserve the optional message in the expression printed by assert without
+// evaluating it. Extra arguments are ignored by the non-libassert backend.
+#define VERIFY_IMPL2(condition, message) assert((condition) && #message)
 
 // Brute force N-args with variadic macros.
 // TODO: Is there a better way to do this?
