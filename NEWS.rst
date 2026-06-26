@@ -6,7 +6,7 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Minor: Use cassert as fallback as that is much faster than the current fallback
 
 6.1.0
 -----
