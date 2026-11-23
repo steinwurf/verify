@@ -10,9 +10,9 @@
         "sha1": "8600eafa3daedc694d3115677da0dda3af6a8633"
     },
     "libassert-source": {
-        "commit_id": "60667829264ae01241257df7f1c7d6dba668eb9d",
-        "resolver_info": "v2.1.5",
-        "sha1": "650d881b8cb6cc1adf354d47d6353db6ec4fd6a5"
+        "commit_id": "bd33ba116f209bf71761c58dccc2f3bf277e0824",
+        "resolver_info": "v2.2.1",
+        "sha1": "51fedc4bda339ee8787d93dbec7f0bb7b703bb23"
     },
     "toolchains": {
         "commit_id": "14f038b2718bc7c1728ef875066fef5de0d1f2a7",
