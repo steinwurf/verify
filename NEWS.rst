@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+6.3.0
+-----
 * Minor: Update libassert to v2.2.1, which builds cpptrace 1.0.4. cpptrace
   0.8.2 (used by libassert v2.1.5) called ``dwarf_dealloc`` on strings that
   point into the debug info, so printing the stack trace of a failed
