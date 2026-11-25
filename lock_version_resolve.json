@@ -1,4 +1,14 @@
 {
+    "fmt": {
+        "commit_id": "3fba272021d507b310f4d059e3a4c1883b65fbc4",
+        "resolver_info": "5.0.1",
+        "sha1": "160978c7e6571cc06d6c8a590e5e0c4f3c826fba"
+    },
+    "fmt-source": {
+        "commit_id": "0c9fce2ffefecfdce794e1859584e25877b7b592",
+        "resolver_info": "11.0.2",
+        "sha1": "f39ff778b3283f543cdfc9b1662ec101c453efce"
+    },
     "gtest": {
         "commit_id": "8e1f80ae8618fdba4389f1b56c811ea7241569d1",
         "resolver_info": "6.0.2",
@@ -9,19 +19,9 @@
         "resolver_info": "v1.17.0",
         "sha1": "8600eafa3daedc694d3115677da0dda3af6a8633"
     },
-    "libassert-source": {
-        "commit_id": "bd33ba116f209bf71761c58dccc2f3bf277e0824",
-        "resolver_info": "v2.2.1",
-        "sha1": "51fedc4bda339ee8787d93dbec7f0bb7b703bb23"
-    },
     "toolchains": {
         "commit_id": "14f038b2718bc7c1728ef875066fef5de0d1f2a7",
         "resolver_info": "1.0.8",
         "sha1": "443cb23b0570dffd39283d8679ec393ed809302f"
-    },
-    "zlib-source": {
-        "commit_id": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
-        "resolver_info": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
-        "sha1": "33283130debb8bf95a98929ff6cadd5bd9cb6a92"
     }
 }

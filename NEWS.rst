@@ -6,7 +6,37 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Major: Remove the libassert backend and the libassert and zlib
+  dependencies. A passing libassert ``VERIFY`` was 1.4-2.4x slower than
+  ``assert()`` on x86 and up to 23x slower on a Raspberry Pi 5. The waf option ``--no_libassert`` and the CMake
+  option ``STEINWURF_LIBASSERT`` are removed.
+* Major: Add a native backend, now the default. A passing ``VERIFY`` costs the
+  same as ``assert()``; a failing one prints the message and the values of the
+  extra arguments. The cassert backend is still available with
+  ``STEINWURF_VERIFY_USE_CASSERT``.
+* Minor: Add the fmt dependency (``steinwurf::fmt``, linked publicly). Types
+  with an ``fmt::formatter`` and no ``operator<<`` are printed with fmt.
+* Minor: A failed verify prints a stack trace as module and offset, ready for
+  ``addr2line``, with function names where the dynamic symbol table has them.
+  Uses ``backtrace()`` and ``dladdr()``: glibc and macOS only, no
+  dependencies. The ``steinwurf::verify`` target links ``CMAKE_DL_LIBS``.
+* Major: The ``steinwurf::verify`` target no longer adds
+  ``-Wno-c++20-extensions`` and ``-Wno-gnu-zero-variadic-macro-arguments`` to
+  its users with Clang.
+* Major: With ``NDEBUG`` (and for a disabled ``VERIFY_DEBUG``) verifies are
+  still compiled but not evaluated. Code that only compiles because verifies
+  were removed, e.g. verifies using variables that only exist in debug builds,
+  must be updated.
+* Major: Extra arguments to ``VERIFY`` must be printable, or compilation fails
+  with a ``static_assert``. Specialize ``verify::printer<T>`` for types without
+  an ``operator<<``.
+* Minor: Add ``VERIFY_EQ``, ``VERIFY_NE``, ``VERIFY_LT``, ``VERIFY_LE``,
+  ``VERIFY_GT`` and ``VERIFY_GE``, which print both operands on failure.
+* Minor: Add ``verify::print`` and ``verify::printer``, with support for
+  standard containers, pairs, tuples and optionals.
+* Minor: Add ``verify_benchmark``, measuring the cost of a passing ``VERIFY``
+  per backend, and ``benchmark/run_remote.sh`` to run it on an aarch64 host
+  such as a Raspberry Pi.
 
 6.3.0
 -----

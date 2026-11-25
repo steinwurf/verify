@@ -28,35 +28,20 @@ endif()
 # Include common CMake settings
 include("${STEINWURF_RESOLVE}/toolchains/common_settings.cmake")
 
-if(NOT DEFINED STEINWURF_LIBASSERT)
-    message(STATUS "STEINWURF_LIBASSERT not defined, using ON")
-
-    set(STEINWURF_LIBASSERT ON)
+# fmt dependency: types with an fmt::formatter are printable in verify output
+if(NOT TARGET steinwurf::fmt)
+    add_subdirectory("${STEINWURF_RESOLVE}/fmt" fmt EXCLUDE_FROM_ALL)
 endif()
 
 file(GLOB_RECURSE verify_sources ./src/*.cpp)
 add_library(${PROJECT_NAME} STATIC ${verify_sources})
 target_include_directories(${PROJECT_NAME} PUBLIC src)
+target_link_libraries(${PROJECT_NAME} PUBLIC steinwurf::fmt)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_EXTENSIONS OFF)
-
-# Enable pedantic errors
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-# GCC is throwing ISO errors from abseil that we can't fix
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    # Clang gets really mad at libassert for using zero arguments internally to
-    # `...` VA_ARGS.
-    target_compile_options(${PROJECT_NAME} PUBLIC
-        -Wno-c++20-extensions
-        -Wno-gnu-zero-variadic-macro-arguments)
-elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-    # Clang gets really mad at libassert for using zero arguments internally to
-    # `...` VA_ARGS.
-    target_compile_options(${PROJECT_NAME} PUBLIC
-        -Wno-c++20-extensions
-        -Wno-gnu-zero-variadic-macro-arguments)
-else()
-    target_compile_options(${PROJECT_NAME} PUBLIC )
+# dladdr() is in libdl on glibc before 2.34; used for the stack trace
+if(CMAKE_DL_LIBS)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_DL_LIBS})
 endif()
 
 add_library(steinwurf::verify ALIAS ${PROJECT_NAME})
@@ -66,26 +51,6 @@ install(
     DESTINATION ${CMAKE_INSTALL_PREFIX}/include
     FILES_MATCHING
     PATTERN *.hpp)
-
-if(STEINWURF_LIBASSERT)
-
-    if(NOT TARGET ZLIB::ZLIB)
-        find_package(ZLIB)
-
-        if(NOT ZLIB_FOUND)
-            set(ZLIB_BUILD_EXAMPLES NO)
-            add_subdirectory("${STEINWURF_RESOLVE}/zlib-source" zlib EXCLUDE_FROM_ALL)
-        endif()
-    endif()
-
-    if(NOT TARGET libassert::assert)
-        add_subdirectory("${STEINWURF_RESOLVE}/libassert-source" libassert EXCLUDE_FROM_ALL)
-    endif()
-
-    target_link_libraries(${PROJECT_NAME} PUBLIC libassert::assert)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC LIBASSERT_PREFIX_ASSERTIONS)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC STEINWURF_VERIFY_USE_LIBASSERT)
-endif()
 
 if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
   file(GLOB_RECURSE verify_example_sources example/*.cpp)
@@ -119,6 +84,8 @@ if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
         string(REGEX REPLACE "/DNDEBUG" "" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
     else()
         target_compile_options(verify_tests PRIVATE -Wall -Wextra -Wpedantic -Werror)
+        # Function names in the stack trace of a failed VERIFY
+        set_property(TARGET verify_tests PROPERTY ENABLE_EXPORTS ON)
 
         # Make Release builds explicitly keep NDEBUG unset.
         string(REGEX REPLACE "-DNDEBUG" "" CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE}")
@@ -126,4 +93,19 @@ if(${CMAKE_PROJECT_NAME} STREQUAL ${PROJECT_NAME})
     endif()
 
     add_test(verify_tests verify_tests)
+
+    # Benchmark: the same scenarios compiled once per backend and linked into
+    # one binary, so all backends are compared on the same machine and run.
+    add_executable(verify_benchmark
+        benchmark/main.cpp
+        benchmark/bench_ndebug.cpp
+        benchmark/bench_cassert.cpp
+        benchmark/bench_native.cpp)
+    target_link_libraries(verify_benchmark PRIVATE steinwurf::verify)
+    set_property(TARGET verify_benchmark PROPERTY CXX_STANDARD 17)
+    set_property(TARGET verify_benchmark PROPERTY CXX_EXTENSIONS OFF)
+    if(NOT MSVC)
+        target_compile_options(verify_benchmark PRIVATE
+            -Wall -Wextra -Wpedantic -Werror)
+    endif()
 endif()

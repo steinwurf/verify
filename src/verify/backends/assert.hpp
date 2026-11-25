@@ -12,7 +12,7 @@
 #define VERIFY_IMPL1(condition) assert(condition)
 
 // Preserve the optional message in the expression printed by assert without
-// evaluating it. Extra arguments are ignored by the non-libassert backend.
+// evaluating it. Extra arguments are ignored by this backend.
 #define VERIFY_IMPL2(condition, message) assert((condition) && #message)
 
 // Brute force N-args with variadic macros.

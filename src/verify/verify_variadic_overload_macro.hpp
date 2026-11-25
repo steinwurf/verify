@@ -34,3 +34,18 @@
     __VERIFY_GLUE(                                                             \
         __VERIFY_OVERLOAD_MACRO(name, __VERIFY_COUNT_ARGS_MAX32(__VA_ARGS__)), \
         (__VA_ARGS__))
+
+// ----------------------------------------------------
+// Arity class: 1, 2 or N (three or more arguments)
+// ----------------------------------------------------
+// __VERIFY_ARITY(a) -> 1, __VERIFY_ARITY(a, b) -> 2, __VERIFY_ARITY(a, b, c...)
+// -> N. Used to select between the forms of a macro without needing
+// __VA_OPT__ (C++20) or one macro per argument count.
+
+#define __VERIFY_ARITY(...)                                                    \
+    __VERIFY_EXPAND_ARGS((__VA_ARGS__, N, N, N, N, N, N, N, N, N, N, N, N, N,  \
+                          N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, N,   \
+                          2, 1, 0))
+
+#define __VERIFY_SELECT(name, ...)                                             \
+    __VERIFY_OVERLOAD_MACRO(name, __VERIFY_ARITY(__VA_ARGS__))
