@@ -58,7 +58,8 @@ Values are printed with these rules:
 
 * arithmetic types, ``bool`` (``true``/``false``), characters (``'a'``),
   ``int8_t``/``uint8_t`` as numbers, floating point at full precision
-* strings (``"quoted"``), pointers (``0x...`` or ``nullptr``), enums (their
+* strings (``"quoted"``; ``char*`` and ``const char*`` up to the first NUL
+  but at most 64 characters, as they may point at binary data), pointers (``0x...`` or ``nullptr``), enums (their
   underlying value)
 * ``std::pair``, ``std::tuple`` and ``std::optional``
 * containers: anything with ``begin()``/``end()`` as ``[a, b, c]``, maps as

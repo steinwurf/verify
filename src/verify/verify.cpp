@@ -356,6 +356,27 @@ std::ostream& report::scratch()
     return m_impl->scratch;
 }
 
+void report::print_exception()
+{
+    std::string what = "<exception while printing";
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
+    try
+    {
+        throw;
+    }
+    catch (const std::exception& e)
+    {
+        what += ": ";
+        what += e.what();
+    }
+    catch (...)
+    {
+    }
+#endif
+    what += '>';
+    scratch() << what;
+}
+
 void report::add_message()
 {
     m_impl->lines.push_back(entry{true, {}, m_impl->scratch.str()});
@@ -390,7 +411,7 @@ void print_formatted(std::ostream& out, fmt::format_args args)
 // Not inlined, so the return address is the cold failure function
 __attribute__((noinline))
 #endif
-void report::fail()
+void report::fail() noexcept
 {
     const impl& r = *m_impl;
     std::string out;

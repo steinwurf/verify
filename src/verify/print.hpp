@@ -174,6 +174,23 @@ void print_formatted(std::ostream& out, fmt::format_args args);
 /// Containers print at most this many elements
 constexpr std::size_t max_elements = 32;
 
+/// char pointers print at most this many characters. The length behind the
+/// pointer is unknown, and a char* often points at binary data rather than a
+/// NUL-terminated string, so reading is bounded instead of going to the NUL.
+constexpr std::size_t max_c_string = 64;
+
+inline void print_quoted(std::ostream& out, std::string_view text);
+
+inline void print_c_string(std::ostream& out, const char* s)
+{
+    std::size_t n = 0;
+    while (n < max_c_string && s[n] != '\0')
+        ++n;
+    print_quoted(out, std::string_view(s, n));
+    if (n == max_c_string)
+        out << "...";
+}
+
 inline void print_escaped(std::ostream& out, char c, char quote)
 {
     static const char hex[] = "0123456789abcdef";
@@ -318,7 +335,7 @@ void print(std::ostream& out, const T& v)
         if (v == nullptr)
             out << "nullptr";
         else
-            detail::print_quoted(out, v);
+            detail::print_c_string(out, v);
     }
     else if constexpr (std::is_null_pointer_v<T>)
     {

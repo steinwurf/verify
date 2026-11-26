@@ -3,6 +3,7 @@
 //
 // Distributed under the "BSD License". See the accompanying LICENSE.rst file.
 
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <list>
@@ -176,6 +177,17 @@ TEST(test_print, strings)
     EXPECT_EQ("\"c string\"", to_string(c_string));
     const char* null_string = nullptr;
     EXPECT_EQ("nullptr", to_string(null_string));
+
+    // A char pointer is read up to the NUL, but at most 64 characters: it may
+    // point at a buffer without one
+    char buffer[100];
+    std::fill(std::begin(buffer), std::end(buffer), 'x');
+    char* unterminated = buffer;
+    EXPECT_EQ("\"" + std::string(64, 'x') + "\"...", to_string(unterminated));
+    buffer[64] = '\0';
+    EXPECT_EQ("\"" + std::string(64, 'x') + "\"...", to_string(unterminated));
+    buffer[63] = '\0';
+    EXPECT_EQ("\"" + std::string(63, 'x') + "\"", to_string(unterminated));
     EXPECT_EQ("\"a\\\"b\\\\c\\n\\x01\"",
               to_string(std::string("a\"b\\c\n\x01")));
 }

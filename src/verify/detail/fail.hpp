@@ -55,6 +55,10 @@ public:
     /// A cleared stream to print the next value or message into
     std::ostream& scratch();
 
+    /// Replace the scratch content with a note about the exception being
+    /// handled. Called from a catch block when printing a value threw.
+    void print_exception();
+
     /// Record the scratch content as a message line
     void add_message();
 
@@ -64,7 +68,7 @@ public:
     void add_value(std::string_view name, bool skip_if_same = false);
 
     /// Write the report to stderr and abort
-    [[noreturn]] void fail();
+    [[noreturn]] void fail() noexcept;
 
 private:
     struct impl;
@@ -86,6 +90,26 @@ constexpr bool is_char_array_v =
     std::is_array_v<T> &&
     std::is_same_v<std::remove_cv_t<std::remove_extent_t<T>>, char>;
 
+/// Print value into the scratch stream. A failing VERIFY must abort, so an
+/// exception from printing the value (its operator<<, a printer, ...) is
+/// reported in place of the value instead of leaving the failure function.
+template <class T>
+void print_value(report& r, const T& value)
+{
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
+    try
+    {
+        verify::print(r.scratch(), value);
+    }
+    catch (...)
+    {
+        r.print_exception();
+    }
+#else
+    verify::print(r.scratch(), value);
+#endif
+}
+
 template <class T>
 void add_argument(report& r, std::size_t index, const T& value)
 {
@@ -98,14 +122,16 @@ void add_argument(report& r, std::size_t index, const T& value)
             return;
         }
     }
-    verify::print(r.scratch(), value);
+    print_value(r, value);
     r.add_value(r.argument_name(index));
 }
 
+// The failure functions are noexcept: whatever still throws while the report
+// is built (std::bad_alloc) ends in std::terminate, never in a caller's catch.
 template <class... Args>
-[[noreturn]] VERIFY_COLD void fail(const char* file, int line,
-                                   const char* function, const char* expression,
-                                   const char* names, pass_t<Args>... args)
+[[noreturn]] VERIFY_COLD void
+fail(const char* file, int line, const char* function, const char* expression,
+     const char* names, pass_t<Args>... args) noexcept
 {
     report r("VERIFY", file, line, function);
     r.expression(expression);
@@ -121,13 +147,13 @@ template <class A, class B, class... Args>
 fail_compare(const char* macro, const char* file, int line,
              const char* function, const char* lhs_name, const char* op,
              const char* rhs_name, pass_t<A> lhs, pass_t<B> rhs,
-             const char* names, pass_t<Args>... args)
+             const char* names, pass_t<Args>... args) noexcept
 {
     report r(macro, file, line, function);
     r.expression(lhs_name, op, rhs_name);
-    verify::print(r.scratch(), static_cast<const A&>(lhs));
+    print_value(r, static_cast<const A&>(lhs));
     r.add_value(lhs_name, true);
-    verify::print(r.scratch(), static_cast<const B&>(rhs));
+    print_value(r, static_cast<const B&>(rhs));
     r.add_value(rhs_name, true);
     r.argument_names(names, sizeof...(Args));
     std::size_t index = 0;
@@ -142,7 +168,8 @@ fail_compare(const char* macro, const char* file, int line,
 template <class... Args>
 [[noreturn]] VERIFY_ALWAYS_INLINE void
 verify_failed(const char* file, int line, const char* function,
-              const char* expression, const char* names, const Args&... args)
+              const char* expression, const char* names,
+              const Args&... args) noexcept
 {
     fail<Args...>(file, line, function, expression, names, args...);
 }
@@ -152,7 +179,7 @@ template <class A, class B, class... Args>
 compare_failed(const char* macro, const char* file, int line,
                const char* function, const char* lhs_name, const char* op,
                const char* rhs_name, const A& lhs, const B& rhs,
-               const char* names, const Args&... args)
+               const char* names, const Args&... args) noexcept
 {
     fail_compare<A, B, Args...>(macro, file, line, function, lhs_name, op,
                                 rhs_name, lhs, rhs, names, args...);

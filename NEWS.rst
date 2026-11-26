@@ -19,6 +19,9 @@ Latest
 * Minor: A failed verify prints a stack trace as module and offset, with
   function names where the dynamic symbol table has them. On Linux it ends
   with a ready-to-copy ``addr2line`` command per module for file and line.
+* Minor: A failing verify always aborts. An exception thrown while printing a
+  value is shown in place of the value. ``char*`` and ``const char*`` values
+  print at most 64 characters, as they may point at data without a NUL.
   Uses ``backtrace()`` and ``dladdr()``: glibc and macOS only, no
   dependencies. The ``steinwurf::verify`` target links ``CMAKE_DL_LIBS``.
 * Major: The ``steinwurf::verify`` target no longer adds

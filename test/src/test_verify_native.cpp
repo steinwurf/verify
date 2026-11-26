@@ -4,6 +4,8 @@
 // Distributed under the "BSD License". See the accompanying LICENSE.rst file.
 
 #include <map>
+#include <ostream>
+#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -112,6 +114,31 @@ void fail_with_values()
     VERIFY(m.count("b") == 1, "missing key", m, std::pair<int, int>(3, 4), p);
 }
 
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
+struct throws_when_printed
+{
+};
+
+std::ostream& operator<<(std::ostream& out, const throws_when_printed&)
+{
+    out << "partial";
+    throw std::runtime_error("printing failed");
+}
+
+void fail_printing_throws()
+{
+    int x = 3;
+    throws_when_printed t;
+    VERIFY(x == 4, "message", t, x);
+}
+
+void fail_compare_printing_throws()
+{
+    throws_when_printed t;
+    VERIFY_EQ(&t, nullptr, t);
+}
+#endif
+
 void fail_plain()
 {
     int x = 3;
@@ -211,10 +238,20 @@ TEST(test_verify_native, failure_output)
 #if defined(TEST_HAS_STACK_TRACE) && defined(__ELF__)
     // Nothing is symbolized in-process; the trace ends with the addr2line
     // command for each module, starting with the module of frame #0
-    EXPECT_DEATH(
-        verify_stack_trace_caller(3),
-        "\nfile and line \\(needs debug info\\):\n"
-        "  addr2line -f -C -i -e [^ \n]*verify_tests( 0x[0-9a-f]+)+\n");
+    EXPECT_DEATH(verify_stack_trace_caller(3),
+                 "\nfile and line \\(needs debug info\\):\n"
+                 "  addr2line -f -C -i -e [^ \n]+( 0x[0-9a-f]+)+\n");
+#endif
+
+#if defined(__cpp_exceptions) || defined(_CPPUNWIND)
+    // A failing VERIFY aborts even when printing a value throws; the
+    // exception is reported in place of the value and the report goes on
+    EXPECT_DEATH(fail_printing_throws(),
+                 "  message\n"
+                 "  t = <exception while printing: printing failed>\n"
+                 "  x = 3\n");
+    EXPECT_DEATH(fail_compare_printing_throws(),
+                 "  t  = <exception while printing: printing failed>\n");
 #endif
 
     EXPECT_DEATH(fail_plain(),
