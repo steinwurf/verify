@@ -150,10 +150,16 @@ struct is_optional<std::optional<T>> : std::true_type
 /// always use verify's own printing: fmt only formats them in files that
 /// include fmt/ranges.h or fmt/std.h, and the same type must print the same way
 /// everywhere.
+///
+/// fmt::is_formattable is checked last and only instantiated for the other
+/// types (std::conjunction stops at the first false): for a range of an
+/// unformattable type, fmt's range formatter is a hard error with GCC 8
+/// rather than "not formattable".
 template <class T>
 constexpr bool use_fmt_v =
-    fmt::is_formattable<T>::value && !is_range<T>::value &&
-    !is_pair<T>::value && !is_tuple<T>::value && !is_optional<T>::value;
+    std::conjunction_v<std::negation<is_range<T>>, std::negation<is_pair<T>>,
+                       std::negation<is_tuple<T>>,
+                       std::negation<is_optional<T>>, fmt::is_formattable<T>>;
 
 /// Write value with its fmt::formatter. Out of line (verify.cpp), so only the
 /// type-erased argument is built where the value is printed.

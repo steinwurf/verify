@@ -131,6 +131,18 @@ void fail_plain()
 #endif
 #endif
 
+// Death test regexes. gtest on Windows only has "simple" regular expressions:
+// no groups, alternatives or bracket expressions.
+#if defined(GTEST_USES_SIMPLE_RE) && GTEST_USES_SIMPLE_RE
+#define TEST_RE_NUMBER "\\d+"
+// The report ends after the last value line
+#define TEST_RE_END "\n"
+#else
+#define TEST_RE_NUMBER "[0-9]+"
+// The last value line is followed by the stack trace or the end of output
+#define TEST_RE_END "\n(stack trace:\n|$)"
+#endif
+
 #if defined(TEST_HAS_STACK_TRACE)
 // Not inlined, so it is its own frame in the stack trace
 #if defined(__GNUC__) || defined(__clang__)
@@ -171,14 +183,14 @@ TEST(test_verify_native, failure_output)
     EXPECT_DEATH(fail_eq_suffixed_literal(),
                  "VERIFY_EQ failed in fail_eq_suffixed_literal\\(\\): "
                  "size == 16ul\n"
-                 "  size = 3\n(stack trace:\n|$)");
+                 "  size = 3" TEST_RE_END);
     // ...but an expression that starts with a literal is printed
     EXPECT_DEATH(
         fail_lt_expression(),
         "VERIFY_LT failed in fail_lt_expression\\(\\): index < 2 \\* n\n"
         "  index out of range\n"
         "  index = 7\n"
-        "  2 \\* n = 4\n(stack trace:\n|$)");
+        "  2 \\* n = 4" TEST_RE_END);
 
     // Names are split correctly around commas inside brackets
     EXPECT_DEATH(fail_with_values(),
@@ -229,8 +241,8 @@ TEST(test_verify_native, failure_output)
 #endif
 
     EXPECT_DEATH(fail_plain(),
-                 "test_verify_native.cpp:[0-9]+: VERIFY failed "
-                 "in fail_plain\\(\\): x == 4\n(stack trace:\n|$)");
+                 "test_verify_native.cpp:" TEST_RE_NUMBER ": VERIFY failed "
+                 "in fail_plain\\(\\): x == 4" TEST_RE_END);
 }
 
 #endif
