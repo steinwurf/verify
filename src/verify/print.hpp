@@ -151,15 +151,21 @@ struct is_optional<std::optional<T>> : std::true_type
 /// include fmt/ranges.h or fmt/std.h, and the same type must print the same way
 /// everywhere.
 ///
-/// fmt::is_formattable is checked last and only instantiated for the other
-/// types (std::conjunction stops at the first false): for a range of an
-/// unformattable type, fmt's range formatter is a hard error with GCC 8
-/// rather than "not formattable".
+/// fmt::is_formattable is only evaluated for the other types: for a range of
+/// an unformattable type, fmt's range formatter is a hard error with GCC 8
+/// rather than "not formattable". fmt::is_formattable is an alias, which is
+/// evaluated as soon as it is named, so it is wrapped in a class template that
+/// std::conjunction only instantiates when the checks before it are true.
+template <class T>
+struct is_fmt_formattable : std::bool_constant<fmt::is_formattable<T>::value>
+{
+};
+
 template <class T>
 constexpr bool use_fmt_v =
     std::conjunction_v<std::negation<is_range<T>>, std::negation<is_pair<T>>,
                        std::negation<is_tuple<T>>,
-                       std::negation<is_optional<T>>, fmt::is_formattable<T>>;
+                       std::negation<is_optional<T>>, is_fmt_formattable<T>>;
 
 /// Write value with its fmt::formatter. Out of line (verify.cpp), so only the
 /// type-erased argument is built where the value is printed.

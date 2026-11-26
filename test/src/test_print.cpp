@@ -220,6 +220,39 @@ TEST(test_print, containers)
               to_string(std::vector<std::vector<std::string>>{{"a"}, {}}));
 }
 
+namespace
+{
+// A range whose fmt::formatter fails to compile when instantiated. verify
+// prints ranges itself, so it must not even ask fmt about it (with GCC 8,
+// fmt's map formatter for std::map<int, third_party> is such a hard error).
+template <class T>
+struct poison_range
+{
+    std::vector<T> v;
+
+    auto begin() const
+    {
+        return v.begin();
+    }
+
+    auto end() const
+    {
+        return v.end();
+    }
+};
+}
+
+template <class T>
+struct fmt::formatter<poison_range<T>>
+{
+    static_assert(sizeof(T) == 0, "verify instantiated fmt's range formatter");
+};
+
+TEST(test_print, ranges_do_not_instantiate_fmt_formatters)
+{
+    EXPECT_EQ("[1, 2]", to_string(poison_range<int>{{1, 2}}));
+}
+
 TEST(test_print, long_containers_are_truncated)
 {
     std::vector<int> v(40, 0);
