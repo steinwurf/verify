@@ -20,6 +20,9 @@ Latest
   ``addr2line``, with function names where the dynamic symbol table has them.
   Uses ``backtrace()`` and ``dladdr()``: glibc and macOS only, no
   dependencies. The ``steinwurf::verify`` target links ``CMAKE_DL_LIBS``.
+* Minor: On Linux the stack trace shows function names and ``file:line``
+  (including inlined functions) by running ``addr2line`` on the failure path,
+  when it is installed. ``VERIFY_SYMBOLIZE=0`` turns it off.
 * Major: The ``steinwurf::verify`` target no longer adds
   ``-Wno-c++20-extensions`` and ``-Wno-gnu-zero-variadic-macro-arguments`` to
   its users with Clang.

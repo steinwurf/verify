@@ -102,14 +102,24 @@ failed, so it costs nothing while verifies pass::
       i        = 3
       v.size() = 3
     stack trace:
-      #0  ./app(+0x26bd)
+      #0  ./app(+0x26bd) check(std::vector<int> const&)
+            at /src/app/st.cpp:5
       #1  ./app(+0x2e29) main
+            at /src/app/helpers.hpp:12 in run() (inlined)
+            at /src/app/main.cpp:20
       ...
 
-Function names are shown for functions in the dynamic symbol table: shared
-libraries, or an executable linked with ``-rdynamic`` (CMake:
-``ENABLE_EXPORTS``). For file and line, pass the module and offset to
-``addr2line`` (or ``llvm-symbolizer``) on a build with debug info::
+On Linux (ELF) the failed verify runs ``addr2line`` (from binutils) on the
+frames to add function names and ``file:line``, including functions that were
+inlined into the frame. This needs ``addr2line`` on the ``PATH`` and a build
+with debug info (``-g``); without debug info it still finds the names in the
+symbol table. ``DEBUGINFOD_URLS`` is removed from its environment, so nothing
+is downloaded. Set ``VERIFY_SYMBOLIZE=0`` to turn it off.
+
+Without ``addr2line`` (and on macOS), function names are shown for functions in
+the dynamic symbol table: shared libraries, or an executable linked with
+``-rdynamic`` (CMake: ``ENABLE_EXPORTS``). The module and offset can be passed
+to ``addr2line`` (or ``llvm-symbolizer``) by hand::
 
     addr2line -f -C -i -e ./app 0x26bd 0x2e29
 
