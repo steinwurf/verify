@@ -39,6 +39,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC src)
 target_link_libraries(${PROJECT_NAME} PUBLIC steinwurf::fmt)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_EXTENSIONS OFF)
+# The public headers use C++17 (std::string_view, if constexpr, ...), so
+# everything that includes them must be compiled as C++17 too
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
 # dladdr() is in libdl on glibc before 2.34; used for the stack trace
 if(CMAKE_DL_LIBS)
     target_link_libraries(${PROJECT_NAME} PRIVATE ${CMAKE_DL_LIBS})
