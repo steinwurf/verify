@@ -123,8 +123,8 @@ struct fmt::formatter<fmt_and_stream> : fmt::formatter<int>
 template <>
 struct fmt::formatter<fmt_throws> : fmt::formatter<int>
 {
-    auto format(const fmt_throws&, fmt::format_context&) const
-        -> fmt::format_context::iterator
+    auto format(const fmt_throws&,
+                fmt::format_context&) const -> fmt::format_context::iterator
     {
         throw std::runtime_error("boom");
     }
@@ -213,9 +213,9 @@ TEST(test_print, containers)
     EXPECT_EQ("[4, 5, 6]", to_string(c_array));
     EXPECT_EQ("{\"foo\": 2, \"test\": 1}",
               to_string(std::map<std::string, int>{{"test", 1}, {"foo", 2}}));
-    EXPECT_EQ("{1: [0.5]}",
-              to_string(std::unordered_map<int, std::vector<double>>{
-                  {1, {0.5}}}));
+    EXPECT_EQ(
+        "{1: [0.5]}",
+        to_string(std::unordered_map<int, std::vector<double>>{{1, {0.5}}}));
     EXPECT_EQ("[[\"a\"], []]",
               to_string(std::vector<std::vector<std::string>>{{"a"}, {}}));
 }
@@ -252,8 +252,7 @@ TEST(test_print, fmt_formatter)
     EXPECT_EQ("fmt_only{3}", to_string(fmt_only{3}));
     EXPECT_EQ("[fmt_only{1}, fmt_only{2}]",
               to_string(std::vector<fmt_only>{{1}, {2}}));
-    EXPECT_EQ("{1: fmt_only{4}}",
-              to_string(std::map<int, fmt_only>{{1, {4}}}));
+    EXPECT_EQ("{1: fmt_only{4}}", to_string(std::map<int, fmt_only>{{1, {4}}}));
     EXPECT_EQ("stream{5}", to_string(fmt_and_stream{5}));
     EXPECT_EQ("on", to_string(fmt_enum::on));
 #if defined(__cpp_exceptions) || defined(_CPPUNWIND)

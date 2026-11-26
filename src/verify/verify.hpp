@@ -25,20 +25,20 @@
 // in every build type, and variables only used in verifies are not unused.
 #include "detail/fail.hpp"
 
-#define VERIFY_IMPL(...)                                                       \
+#define VERIFY_IMPL(...) \
     static_cast<void>(false ? ::verify::detail::unused(__VA_ARGS__) : 0)
-#define VERIFY_CMP_IMPL(macro, op, lhs, rhs)                                   \
-    static_cast<void>(                                                         \
+#define VERIFY_CMP_IMPL(macro, op, lhs, rhs) \
+    static_cast<void>(                       \
         false ? ::verify::detail::unused((lhs)op(rhs), (lhs), (rhs)) : 0)
-#define VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, ...)                         \
-    static_cast<void>(false ? ::verify::detail::unused(                        \
-                                  (lhs)op(rhs), (lhs), (rhs), __VA_ARGS__)     \
+#define VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, ...)                      \
+    static_cast<void>(false ? ::verify::detail::unused((lhs)op(rhs), (lhs), \
+                                                       (rhs), __VA_ARGS__)  \
                             : 0)
 
 #elif defined(STEINWURF_VERIFY_USE_CASSERT)
 #include "backends/assert.hpp"
 #define VERIFY_CMP_IMPL(macro, op, lhs, rhs) VERIFY_IMPL((lhs)op(rhs))
-#define VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, ...)                         \
+#define VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, ...) \
     VERIFY_IMPL((lhs)op(rhs), __VA_ARGS__)
 
 #else
@@ -65,13 +65,13 @@
 // expands comparisons into VERIFY_IMPL, and a macro is not expanded again
 // inside its own expansion.
 #define __VERIFY_CMP_GLUE(x, y) x y
-#define __VERIFY_CMP(macro, op, ...)                                           \
-    __VERIFY_CMP_GLUE(__VERIFY_SELECT(__VERIFY_CMP_, __VA_ARGS__),             \
+#define __VERIFY_CMP(macro, op, ...)                               \
+    __VERIFY_CMP_GLUE(__VERIFY_SELECT(__VERIFY_CMP_, __VA_ARGS__), \
                       (macro, op, __VA_ARGS__))
-#define __VERIFY_CMP_1(macro, op, lhs)                                         \
+#define __VERIFY_CMP_1(macro, op, lhs) \
     static_assert(sizeof(#lhs) == 0, #macro " needs two values to compare")
 #define __VERIFY_CMP_2(macro, op, lhs, rhs) VERIFY_CMP_IMPL(macro, op, lhs, rhs)
-#define __VERIFY_CMP_N(macro, op, lhs, rhs, ...)                               \
+#define __VERIFY_CMP_N(macro, op, lhs, rhs, ...) \
     VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, __VA_ARGS__)
 
 // VERIFY_DEBUG: VERIFY when WURFDEBUG is defined, otherwise disabled (but
@@ -80,6 +80,6 @@
 #define VERIFY_DEBUG(...) VERIFY(__VA_ARGS__)
 #else
 #include "detail/fail.hpp"
-#define VERIFY_DEBUG(...)                                                      \
+#define VERIFY_DEBUG(...) \
     static_cast<void>(false ? ::verify::detail::unused(__VA_ARGS__) : 0)
 #endif

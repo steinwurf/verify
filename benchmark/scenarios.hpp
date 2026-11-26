@@ -5,8 +5,8 @@
 
 // Benchmark scenarios. This file is included once per backend translation unit
 // (bench_*.cpp). Each includer configures NDEBUG / the backend macros, defines
-// VERIFY_BENCH_NS and VERIFY_BENCH_REGISTER, and then includes this file, so the
-// exact same code is compiled against every backend.
+// VERIFY_BENCH_NS and VERIFY_BENCH_REGISTER, and then includes this file, so
+// the exact same code is compiled against every backend.
 
 #ifndef VERIFY_BENCH_NS
 #error "Define VERIFY_BENCH_NS before including scenarios.hpp"
@@ -159,7 +159,6 @@ VERIFY_BENCH_NOINLINE std::uint64_t verify_with_args(data& d)
     }
     return sum;
 }
-
 
 // The same reader using the comparison macros, which bind references to their
 // operands (here members) and print both values on failure.

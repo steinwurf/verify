@@ -94,7 +94,8 @@ verify_bench::data make_data(std::size_t elements)
     data d;
     d.elements = elements;
     std::mt19937 rng(42);
-    std::uniform_int_distribution<std::uint32_t> value(0, data::value_limit - 1);
+    std::uniform_int_distribution<std::uint32_t> value(0,
+                                                       data::value_limit - 1);
     std::uniform_int_distribution<int> byte(0, 255);
     std::uniform_int_distribution<int> symbol(0, data::symbol_limit - 1);
     std::uniform_int_distribution<std::uint32_t> position(
@@ -141,8 +142,8 @@ double run_once(verify_bench::scenario_fn fn, verify_bench::data& d,
         auto stop = clock_type::now();
         g_sink = acc;
 
-        double ns = std::chrono::duration<double, std::nano>(stop - start)
-                        .count();
+        double ns =
+            std::chrono::duration<double, std::nano>(stop - start).count();
         if (ns >= min_time_ms * 1e6)
             return ns / (static_cast<double>(calls) * d.elements);
 
@@ -197,9 +198,8 @@ int main(int argc, char** argv)
     {
         std::printf("elements=%zu min-time-ms=%g reps=%zu\n\n", opt.elements,
                     opt.min_time_ms, opt.reps);
-        std::printf("%-22s %-12s %14s %14s %10s %10s\n", "scenario",
-                    "backend", "median ns/elem", "min ns/elem", "vs ndebug",
-                    "vs cassert");
+        std::printf("%-22s %-12s %14s %14s %10s %10s\n", "scenario", "backend",
+                    "median ns/elem", "min ns/elem", "vs ndebug", "vs cassert");
     }
 
     for (const auto& scenario : scenarios)
@@ -229,8 +229,8 @@ int main(int argc, char** argv)
         for (std::size_t i = 0; i < entries.size(); ++i)
         {
             double med = median(samples[i]);
-            double min = *std::min_element(samples[i].begin(),
-                                           samples[i].end());
+            double min =
+                *std::min_element(samples[i].begin(), samples[i].end());
             double vs_ndebug = ndebug > 0 ? med / ndebug : 0;
             double vs_cassert = cassert > 0 ? med / cassert : 0;
             if (opt.csv)
@@ -247,8 +247,8 @@ int main(int argc, char** argv)
             if (vs_cassert > 0)
                 std::snprintf(r2, sizeof(r2), "%.2fx", vs_cassert);
             std::printf("%-22s %-12s %14.4f %14.4f %10s %10s\n",
-                        scenario.c_str(), entries[i]->backend.c_str(), med,
-                        min, r1, r2);
+                        scenario.c_str(), entries[i]->backend.c_str(), med, min,
+                        r1, r2);
         }
         if (!opt.csv)
             std::printf("\n");

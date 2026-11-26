@@ -168,11 +168,12 @@ TEST(test_verify_native, failure_output)
                  "size == 16ul\n"
                  "  size = 3\n(stack trace:\n|$)");
     // ...but an expression that starts with a literal is printed
-    EXPECT_DEATH(fail_lt_expression(),
-                 "VERIFY_LT failed in fail_lt_expression\\(\\): index < 2 \\* n\n"
-                 "  index out of range\n"
-                 "  index = 7\n"
-                 "  2 \\* n = 4\n(stack trace:\n|$)");
+    EXPECT_DEATH(
+        fail_lt_expression(),
+        "VERIFY_LT failed in fail_lt_expression\\(\\): index < 2 \\* n\n"
+        "  index out of range\n"
+        "  index = 7\n"
+        "  2 \\* n = 4\n(stack trace:\n|$)");
 
     // Names are split correctly around commas inside brackets
     EXPECT_DEATH(fail_with_values(),
@@ -195,8 +196,9 @@ TEST(test_verify_native, failure_output)
                  "test_verify_native_failure_output_Test::TestBody\\(\\)\n");
 #endif
 
-    EXPECT_DEATH(fail_plain(), "test_verify_native.cpp:[0-9]+: VERIFY failed "
-                               "in fail_plain\\(\\): x == 4\n(stack trace:\n|$)");
+    EXPECT_DEATH(fail_plain(),
+                 "test_verify_native.cpp:[0-9]+: VERIFY failed "
+                 "in fail_plain\\(\\): x == 4\n(stack trace:\n|$)");
 }
 
 #endif

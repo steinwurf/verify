@@ -9,8 +9,8 @@
 
 #include <algorithm>
 #include <cctype>
-#include <cstdio>
 #include <cstdint>
+#include <cstdio>
 #include <cstdlib>
 #include <exception>
 #include <sstream>
@@ -59,9 +59,9 @@ std::vector<std::string_view> split_names(std::string_view names, bool angles)
     for (std::size_t i = 0; i < names.size(); ++i)
     {
         char c = names[i];
-        if (c == '"' || (c == '\'' && (i == 0 || !std::isalnum(static_cast<
-                                                    unsigned char>(
-                                                    names[i - 1])))))
+        if (c == '"' ||
+            (c == '\'' && (i == 0 || !std::isalnum(static_cast<unsigned char>(
+                                         names[i - 1])))))
         {
             // Skip the literal. A ' after an alphanumeric is a digit
             // separator (1'000), not a character literal.

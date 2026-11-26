@@ -35,8 +35,7 @@ namespace detail
 class report
 {
 public:
-    report(const char* macro, const char* file, int line,
-           const char* function);
+    report(const char* macro, const char* file, int line, const char* function);
 
     report(const report&) = delete;
     report& operator=(const report&) = delete;

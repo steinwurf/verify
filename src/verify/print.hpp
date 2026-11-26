@@ -58,10 +58,11 @@ template <class T, class = void>
 struct has_printer : std::false_type
 {
 };
+
 template <class T>
-struct has_printer<T,
-                   std::void_t<decltype(printer<T>::print(
-                       std::declval<std::ostream&>(), std::declval<const T&>()))>>
+struct has_printer<
+    T, std::void_t<decltype(printer<T>::print(std::declval<std::ostream&>(),
+                                              std::declval<const T&>()))>>
     : std::true_type
 {
 };
@@ -70,6 +71,7 @@ template <class T, class = void>
 struct has_ostream : std::false_type
 {
 };
+
 template <class T>
 struct has_ostream<T, std::void_t<decltype(std::declval<std::ostream&>()
                                            << std::declval<const T&>())>>
@@ -81,6 +83,7 @@ template <class T, class = void>
 struct is_range : std::false_type
 {
 };
+
 template <class T>
 struct is_range<T, std::void_t<decltype(std::begin(std::declval<const T&>())),
                                decltype(std::end(std::declval<const T&>()))>>
@@ -92,6 +95,7 @@ template <class T, class = void>
 struct is_map : std::false_type
 {
 };
+
 template <class T>
 struct is_map<T, std::void_t<typename T::key_type, typename T::mapped_type>>
     : std::true_type
@@ -105,6 +109,7 @@ struct range_element
 {
     using type = std::decay_t<decltype(*std::begin(std::declval<const T&>()))>;
 };
+
 template <class T>
 struct range_element<T, std::void_t<typename T::value_type>>
 {
@@ -115,6 +120,7 @@ template <class T>
 struct is_pair : std::false_type
 {
 };
+
 template <class A, class B>
 struct is_pair<std::pair<A, B>> : std::true_type
 {
@@ -124,6 +130,7 @@ template <class T>
 struct is_tuple : std::false_type
 {
 };
+
 template <class... Ts>
 struct is_tuple<std::tuple<Ts...>> : std::true_type
 {
@@ -133,6 +140,7 @@ template <class T>
 struct is_optional : std::false_type
 {
 };
+
 template <class T>
 struct is_optional<std::optional<T>> : std::true_type
 {
@@ -215,8 +223,7 @@ void print_range(std::ostream& out, const Range& range)
         if (n == max_elements)
         {
             auto total = std::distance(std::begin(range), std::end(range));
-            out << ", ... (" << static_cast<std::size_t>(total) - n
-                << " more)";
+            out << ", ... (" << static_cast<std::size_t>(total) - n << " more)";
             break;
         }
         if (n != 0)

@@ -42,10 +42,10 @@
 // -> N. Used to select between the forms of a macro without needing
 // __VA_OPT__ (C++20) or one macro per argument count.
 
-#define __VERIFY_ARITY(...)                                                    \
-    __VERIFY_EXPAND_ARGS((__VA_ARGS__, N, N, N, N, N, N, N, N, N, N, N, N, N,  \
-                          N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, N,   \
+#define __VERIFY_ARITY(...)                                                   \
+    __VERIFY_EXPAND_ARGS((__VA_ARGS__, N, N, N, N, N, N, N, N, N, N, N, N, N, \
+                          N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, N, N,  \
                           2, 1, 0))
 
-#define __VERIFY_SELECT(name, ...)                                             \
+#define __VERIFY_SELECT(name, ...) \
     __VERIFY_OVERLOAD_MACRO(name, __VERIFY_ARITY(__VA_ARGS__))
