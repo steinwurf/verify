@@ -16,13 +16,11 @@ Latest
   ``STEINWURF_VERIFY_USE_CASSERT``.
 * Minor: Add the fmt dependency (``steinwurf::fmt``, linked publicly). Types
   with an ``fmt::formatter`` and no ``operator<<`` are printed with fmt.
-* Minor: A failed verify prints a stack trace as module and offset, ready for
-  ``addr2line``, with function names where the dynamic symbol table has them.
+* Minor: A failed verify prints a stack trace as module and offset, with
+  function names where the dynamic symbol table has them. On Linux it ends
+  with a ready-to-copy ``addr2line`` command per module for file and line.
   Uses ``backtrace()`` and ``dladdr()``: glibc and macOS only, no
   dependencies. The ``steinwurf::verify`` target links ``CMAKE_DL_LIBS``.
-* Minor: On Linux the stack trace shows function names and ``file:line``
-  (including inlined functions) by running ``addr2line`` on the failure path,
-  when it is installed. ``VERIFY_SYMBOLIZE=0`` turns it off.
 * Major: The ``steinwurf::verify`` target no longer adds
   ``-Wno-c++20-extensions`` and ``-Wno-gnu-zero-variadic-macro-arguments`` to
   its users with Clang.

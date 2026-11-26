@@ -3,7 +3,6 @@
 //
 // Distributed under the "BSD License". See the accompanying LICENSE.rst file.
 
-#include <cstdlib>
 #include <map>
 #include <string>
 #include <utility>
@@ -124,10 +123,6 @@ void fail_plain()
 #if __has_include(<execinfo.h>) && __has_include(<dlfcn.h>) && \
     __has_include(<cxxabi.h>)
 #define TEST_HAS_STACK_TRACE 1
-#if defined(__ELF__) && __has_include(<spawn.h>) && \
-    __has_include(<sys/wait.h>) && __has_include(<fcntl.h>)
-#define TEST_HAS_SYMBOLIZER 1
-#endif
 #endif
 #endif
 
@@ -209,35 +204,17 @@ TEST(test_verify_native, failure_output)
                  "VERIFY failed in verify_stack_trace_caller\\(\\): x == 4\n"
                  "stack trace:\n"
                  "  #0  [^\n]*\\(\\+0x[0-9a-f]+\\)[^\n]*\n"
-                 "(        at [^\n]*\n)*"
                  "  #1  [^\n]*\\(\\+0x[0-9a-f]+\\) "
                  "test_verify_native_failure_output_Test::TestBody\\(\\)\n");
 #endif
 
-#if defined(TEST_HAS_SYMBOLIZER)
-    // With addr2line and debug info (the tests are built with -g), frame #0
-    // names the line of the failing VERIFY, without verify's own functions
-    // that were inlined there
-    if (std::system("command -v addr2line > /dev/null 2>&1") == 0)
-    {
-        EXPECT_DEATH(verify_stack_trace_caller(3),
-                     "stack trace:\n"
-                     "  #0  [^\n]*\\(\\+0x[0-9a-f]+\\)[^\n]*\n"
-                     "        at [^\n]*test_verify_native\\.cpp:[0-9]+\n"
-                     "  #1  ");
-    }
-
-    // VERIFY_SYMBOLIZE=0 turns it off: module and offset only
+#if defined(TEST_HAS_STACK_TRACE) && defined(__ELF__)
+    // Nothing is symbolized in-process; the trace ends with the addr2line
+    // command for each module, starting with the module of frame #0
     EXPECT_DEATH(
-        {
-            ::setenv("VERIFY_SYMBOLIZE", "0", 1);
-            verify_stack_trace_caller(3);
-        },
-        "stack trace:\n"
-        "  #0  [^\n]*\\(\\+0x[0-9a-f]+\\)[^\n]*\n"
-        "  #1  [^\n]*\\(\\+0x[0-9a-f]+\\) "
-        "test_verify_native_failure_output_Test::TestBody\\(\\)\n"
-        "  #2  ");
+        verify_stack_trace_caller(3),
+        "\nfile and line \\(needs debug info\\):\n"
+        "  addr2line -f -C -i -e [^ \n]*verify_tests( 0x[0-9a-f]+)+\n");
 #endif
 
     EXPECT_DEATH(fail_plain(),

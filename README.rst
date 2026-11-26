@@ -102,26 +102,21 @@ failed, so it costs nothing while verifies pass::
       i        = 3
       v.size() = 3
     stack trace:
-      #0  ./app(+0x26bd) check(std::vector<int> const&)
-            at /src/app/st.cpp:5
+      #0  ./app(+0x26bd)
       #1  ./app(+0x2e29) main
-            at /src/app/helpers.hpp:12 in run() (inlined)
-            at /src/app/main.cpp:20
+      #2  /lib/x86_64-linux-gnu/libc.so.6(+0x2a574)
       ...
+    file and line (needs debug info):
+      addr2line -f -C -i -e ./app 0x26bd 0x2e29
+      addr2line -f -C -i -e /lib/x86_64-linux-gnu/libc.so.6 0x2a574 ...
 
-On Linux (ELF) the failed verify runs ``addr2line`` (from binutils) on the
-frames to add function names and ``file:line``, including functions that were
-inlined into the frame. This needs ``addr2line`` on the ``PATH`` and a build
-with debug info (``-g``); without debug info it still finds the names in the
-symbol table. ``DEBUGINFOD_URLS`` is removed from its environment, so nothing
-is downloaded. Set ``VERIFY_SYMBOLIZE=0`` to turn it off.
-
-Without ``addr2line`` (and on macOS), function names are shown for functions in
-the dynamic symbol table: shared libraries, or an executable linked with
-``-rdynamic`` (CMake: ``ENABLE_EXPORTS``). The module and offset can be passed
-to ``addr2line`` (or ``llvm-symbolizer``) by hand::
-
-    addr2line -f -C -i -e ./app 0x26bd 0x2e29
+Function names are shown for functions in the dynamic symbol table: shared
+libraries, or an executable linked with ``-rdynamic`` (CMake:
+``ENABLE_EXPORTS``). On Linux the trace ends with an ``addr2line`` command per
+module. Run it on a build with debug info (``-g``) to get the function, file
+and line of each frame, including inlined calls. verify does not run it
+itself: a failing check never starts another process. ``llvm-symbolizer``
+accepts the same module and offsets.
 
 The trace needs glibc's or macOS's ``backtrace()``; on musl and Windows it is
 left out.

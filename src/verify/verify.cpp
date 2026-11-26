@@ -15,6 +15,7 @@
 #include <exception>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <fmt/format.h>
@@ -28,18 +29,6 @@
 #include <execinfo.h>
 #if defined(__ELF__) && __has_include(<link.h>)
 #include <link.h>
-#endif
-// File and line come from running addr2line (binutils) on the failure path
-#if defined(__ELF__) && __has_include(<spawn.h>) && \
-    __has_include(<sys/wait.h>) && __has_include(<fcntl.h>)
-#define VERIFY_HAS_SYMBOLIZER 1
-#include <cerrno>
-#include <fcntl.h>
-#include <map>
-#include <spawn.h>
-#include <sys/wait.h>
-#include <unistd.h>
-extern char** environ;
 #endif
 #endif
 #endif
@@ -142,6 +131,30 @@ bool is_literal_operand(std::string_view name)
 }
 
 #if defined(VERIFY_HAS_STACK_TRACE)
+/// Quote a path for a POSIX shell, unless it only has characters that need
+/// no quoting
+std::string shell_quote(std::string_view path)
+{
+    bool plain = !path.empty();
+    for (char c : path)
+        if (!std::isalnum(static_cast<unsigned char>(c)) &&
+            std::string_view("/._+-").find(c) == std::string_view::npos)
+            plain = false;
+    if (plain)
+        return std::string(path);
+
+    std::string quoted = "'";
+    for (char c : path)
+    {
+        if (c == '\'')
+            quoted += "'\\''";
+        else
+            quoted += c;
+    }
+    quoted += '\'';
+    return quoted;
+}
+
 std::string demangle(const char* name)
 {
     int status = 0;
@@ -153,172 +166,13 @@ std::string demangle(const char* name)
     return result;
 }
 
-#if defined(VERIFY_HAS_SYMBOLIZER)
-/// One source location of a frame. A frame has several when functions were
-/// inlined into it: the innermost (where execution was) comes first.
-struct source_location
-{
-    std::string function;
-    std::string file_line;
-};
-
-/// Run `addr2line -a -f -C -i -e module address...` and return its output, or
-/// an empty string if it could not be run or failed.
-std::string run_addr2line(const char* module,
-                          const std::vector<std::string>& addresses)
-{
-    int out[2];
-    if (::pipe(out) != 0)
-        return {};
-    // Close-on-exec, so only the dup2'ed copy reaches the child
-    ::fcntl(out[0], F_SETFD, FD_CLOEXEC);
-    ::fcntl(out[1], F_SETFD, FD_CLOEXEC);
-
-    posix_spawn_file_actions_t actions;
-    ::posix_spawn_file_actions_init(&actions);
-    ::posix_spawn_file_actions_addopen(&actions, 0, "/dev/null", O_RDONLY, 0);
-    ::posix_spawn_file_actions_adddup2(&actions, out[1], 1);
-    // Warnings about missing debug info would mix into the report
-    ::posix_spawn_file_actions_addopen(&actions, 2, "/dev/null", O_WRONLY, 0);
-
-    std::vector<char*> argv;
-    for (const char* arg : {"addr2line", "-a", "-f", "-C", "-i", "-e"})
-        argv.push_back(const_cast<char*>(arg));
-    argv.push_back(const_cast<char*>(module));
-    for (const auto& a : addresses)
-        argv.push_back(const_cast<char*>(a.c_str()));
-    argv.push_back(nullptr);
-
-    // Without DEBUGINFOD_URLS: a failing verify must not download debug info
-    std::vector<char*> env;
-    for (char** e = environ; e != nullptr && *e != nullptr; ++e)
-        if (std::string_view(*e).substr(0, 16) != "DEBUGINFOD_URLS=")
-            env.push_back(*e);
-    env.push_back(nullptr);
-
-    pid_t pid = 0;
-    int error = ::posix_spawnp(&pid, "addr2line", &actions, nullptr,
-                               argv.data(), env.data());
-    ::posix_spawn_file_actions_destroy(&actions);
-    ::close(out[1]);
-    if (error != 0)
-    {
-        ::close(out[0]);
-        return {};
-    }
-
-    std::string result;
-    char buffer[4096];
-    for (;;)
-    {
-        ssize_t n = ::read(out[0], buffer, sizeof(buffer));
-        if (n > 0)
-            result.append(buffer, static_cast<std::size_t>(n));
-        else if (n == 0 || errno != EINTR)
-            break;
-    }
-    ::close(out[0]);
-
-    int status = 0;
-    while (::waitpid(pid, &status, 0) < 0 && errno == EINTR)
-    {
-    }
-    if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
-        return {};
-    return result;
-}
-
-/// Parse `addr2line -a -f -i` output: per address a `0x...` line, then a
-/// function and a file:line line for each (inlined) location.
-std::vector<std::vector<source_location>>
-parse_addr2line(const std::string& output)
-{
-    std::vector<std::vector<source_location>> frames;
-    std::vector<std::string_view> lines;
-    std::string_view rest(output);
-    while (!rest.empty())
-    {
-        auto end = rest.find('\n');
-        lines.push_back(rest.substr(0, end));
-        rest = end == std::string_view::npos ? "" : rest.substr(end + 1);
-    }
-    for (std::size_t i = 0; i < lines.size(); ++i)
-    {
-        if (lines[i].substr(0, 2) == "0x")
-        {
-            frames.emplace_back();
-            continue;
-        }
-        if (frames.empty() || i + 1 >= lines.size())
-            break;
-        std::string_view function = lines[i];
-        std::string_view file_line = lines[++i];
-        // "file:line (discriminator 2)"
-        auto paren = file_line.find(" (");
-        if (paren != std::string_view::npos)
-            file_line = file_line.substr(0, paren);
-        // Unknown: "??:0", "??:?" or "file:0"
-        auto colon = file_line.rfind(':');
-        if (file_line.substr(0, 2) == "??" || colon == std::string_view::npos ||
-            file_line.substr(colon) == ":0" || file_line.substr(colon) == ":?")
-            file_line = {};
-        if (function == "??")
-            function = {};
-        if (function.empty() && file_line.empty())
-            continue;
-        // verify's own functions inlined at the failing VERIFY
-        if (function.find("verify::detail::") != std::string_view::npos)
-            continue;
-        frames.back().push_back(
-            source_location{std::string(function), std::string(file_line)});
-    }
-    return frames;
-}
-
-/// Look up file and line of each frame with addr2line, one run per module.
-/// Frames it cannot resolve (no debug info, addr2line missing) stay empty.
-std::vector<std::vector<source_location>>
-symbolize(const std::vector<const char*>& modules,
-          const std::vector<std::uintptr_t>& offsets)
-{
-    std::vector<std::vector<source_location>> result(modules.size());
-    const char* setting = std::getenv("VERIFY_SYMBOLIZE");
-    if (setting != nullptr && std::string_view(setting) == "0")
-        return result;
-
-    std::map<std::string, std::vector<std::size_t>> by_module;
-    for (std::size_t i = 0; i < modules.size(); ++i)
-        if (modules[i] != nullptr)
-            by_module[modules[i]].push_back(i);
-
-    for (const auto& [module, indices] : by_module)
-    {
-        std::vector<std::string> addresses;
-        for (std::size_t i : indices)
-        {
-            char buffer[32];
-            std::snprintf(buffer, sizeof(buffer), "0x%jx",
-                          static_cast<std::uintmax_t>(offsets[i]));
-            addresses.push_back(buffer);
-        }
-        auto frames = parse_addr2line(run_addr2line(module.c_str(), addresses));
-        if (frames.size() != indices.size())
-            continue;
-        for (std::size_t k = 0; k < indices.size(); ++k)
-            result[indices[k]] = std::move(frames[k]);
-    }
-    return result;
-}
-#endif
-
 // Print the call stack, starting at the function that called the failing
 // VERIFY. Only runs on the failure path, so it costs nothing while verifies
 // pass. Each frame is printed as `module(+offset)`, which addr2line and
-// llvm-symbolizer accept: `addr2line -f -C -e module offset`. On ELF systems
-// addr2line is also run here, adding function names and file:line from the
-// debug info when it is installed and the module has debug info. Without it,
-// function names are only known for symbols in the dynamic symbol table
-// (shared libraries, or executables linked with -rdynamic).
+// llvm-symbolizer accept; on ELF systems the matching addr2line commands are
+// printed after the trace, ready to copy. Function names
+// are only known for symbols in the dynamic symbol table (shared libraries, or
+// executables linked with -rdynamic).
 void print_stack_trace(void* caller)
 {
     void* frames[64];
@@ -339,23 +193,29 @@ void print_stack_trace(void* caller)
     if (first >= count)
         return;
 
-    // Module and module-relative offset of each frame
-    std::vector<const char*> modules;
-    std::vector<std::uintptr_t> offsets;
-    std::vector<const char*> symbols;
+    std::string out = "stack trace:\n";
+#if defined(__ELF__)
+    // The frames of each module, in the order the modules first appear, for
+    // the addr2line commands printed after the trace
+    std::vector<std::pair<std::string, std::string>> modules;
+#endif
     for (int i = first; i < count; ++i)
     {
         // A return address points after the call; step back into it so the
         // symbolized line is the call itself.
         auto address = reinterpret_cast<std::uintptr_t>(frames[i]) - 1;
 
+        char buffer[64];
+        std::snprintf(buffer, sizeof(buffer), "  #%-2d ", i - first);
+        out += buffer;
+
         Dl_info info{};
         if (::dladdr(reinterpret_cast<void*>(address), &info) == 0 ||
             info.dli_fname == nullptr || info.dli_fname[0] == '\0')
         {
-            modules.push_back(nullptr);
-            offsets.push_back(address);
-            symbols.push_back(nullptr);
+            std::snprintf(buffer, sizeof(buffer), "0x%jx\n",
+                          static_cast<std::uintmax_t>(address));
+            out += buffer;
             continue;
         }
 
@@ -367,71 +227,46 @@ void print_stack_trace(void* caller)
         if (header != nullptr && header->e_type == ET_EXEC)
             offset = address;
 #endif
-        modules.push_back(info.dli_fname);
-        offsets.push_back(offset);
-        symbols.push_back(info.dli_sname);
-    }
-
-#if defined(VERIFY_HAS_SYMBOLIZER)
-    auto locations = symbolize(modules, offsets);
-#endif
-
-    std::string out = "stack trace:\n";
-    for (std::size_t i = 0; i < modules.size(); ++i)
-    {
-        char buffer[64];
-        std::snprintf(buffer, sizeof(buffer), "  #%-2d ", static_cast<int>(i));
-        out += buffer;
-
-        if (modules[i] == nullptr)
-        {
-            std::snprintf(buffer, sizeof(buffer), "0x%jx\n",
-                          static_cast<std::uintmax_t>(offsets[i]));
-            out += buffer;
-            continue;
-        }
-
         std::snprintf(buffer, sizeof(buffer), "(+0x%jx)",
-                      static_cast<std::uintmax_t>(offsets[i]));
-        out += modules[i];
+                      static_cast<std::uintmax_t>(offset));
+        out += info.dli_fname;
         out += buffer;
-
-        // The name of the function the frame is in: from the debug info if
-        // there is one (the outermost location), else the dynamic symbol
-        std::string name;
-#if defined(VERIFY_HAS_SYMBOLIZER)
-        if (!locations[i].empty())
-            name = locations[i].back().function;
-#endif
-        if (name.empty() && symbols[i] != nullptr)
-            name = demangle(symbols[i]);
-        if (!name.empty())
+        if (info.dli_sname != nullptr)
         {
             out += ' ';
-            out += name;
+            out += demangle(info.dli_sname);
         }
         out += '\n';
 
-#if defined(VERIFY_HAS_SYMBOLIZER)
-        // Where in that function, through any inlined calls (innermost first)
-        const auto& chain = locations[i];
-        for (std::size_t k = 0; k < chain.size(); ++k)
-        {
-            const bool inlined = k + 1 < chain.size();
-            if (chain[k].file_line.empty() && !inlined)
-                continue;
-            out += "        at ";
-            out += chain[k].file_line.empty() ? "??" : chain[k].file_line;
-            if (inlined)
-            {
-                out += " in ";
-                out += chain[k].function;
-                out += " (inlined)";
-            }
-            out += '\n';
-        }
+#if defined(__ELF__)
+        std::snprintf(buffer, sizeof(buffer), " 0x%jx",
+                      static_cast<std::uintmax_t>(offset));
+        auto module =
+            std::find_if(modules.begin(), modules.end(), [&](const auto& m)
+                         { return m.first == info.dli_fname; });
+        if (module == modules.end())
+            modules.emplace_back(info.dli_fname, buffer);
+        else
+            module->second += buffer;
 #endif
     }
+
+#if defined(__ELF__)
+    // Nothing is run here: these are for the developer to copy, and give
+    // function, file and line (including inlined calls) on a build with debug
+    // info
+    if (!modules.empty())
+    {
+        out += "file and line (needs debug info):\n";
+        for (const auto& [path, offsets] : modules)
+        {
+            out += "  addr2line -f -C -i -e ";
+            out += shell_quote(path);
+            out += offsets;
+            out += '\n';
+        }
+    }
+#endif
     std::fputs(out.c_str(), stderr);
     std::fflush(stderr);
 }
