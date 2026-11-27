@@ -6,7 +6,38 @@ every change, see the git log.
 
 Latest
 ------
-* tbd
+* Major: Remove the libassert backend and the libassert and zlib
+  dependencies. A passing libassert ``VERIFY`` was 1.4-2.4x slower than
+  ``assert()`` on x86 and up to 23x slower on a Raspberry Pi 5. The waf option
+  ``--no_libassert`` and the CMake option ``STEINWURF_LIBASSERT`` are removed.
+* Major: Add a native backend, now the default. A passing ``VERIFY`` costs the
+  same as ``assert()``; a failing one prints the message and the values of the
+  extra arguments. The cassert backend is still available with
+  ``STEINWURF_VERIFY_USE_CASSERT``.
+* Minor: Add the fmt dependency (``steinwurf::fmt``, linked publicly). Types
+  with an ``fmt::formatter`` and no ``operator<<`` are printed with fmt.
+* Minor: A failed verify prints a stack trace as module and offset, with
+  function names where the dynamic symbol table has them. On Linux it ends
+  with a ready-to-copy ``addr2line`` command per module for file and line.
+  Uses ``backtrace()`` and ``dladdr()``: glibc and macOS only, no
+  dependencies. The ``steinwurf::verify`` target links ``CMAKE_DL_LIBS``.
+* Minor: A failing verify always aborts. An exception thrown while printing a
+  value is shown in place of the value. ``char*`` and ``const char*`` values
+  print at most 64 characters, as they may point at data without a NUL.
+* Major: The ``steinwurf::verify`` target no longer adds
+  ``-Wno-c++20-extensions`` and ``-Wno-gnu-zero-variadic-macro-arguments`` to
+  its users with Clang.
+* Major: Extra arguments to ``VERIFY`` must be printable, or compilation fails
+  with a ``static_assert`` in builds where verifies are enabled. Specialize
+  ``verify::printer<T>`` for types without an ``operator<<``.
+* Minor: Add ``VERIFY_EQ``, ``VERIFY_NE``, ``VERIFY_LT``, ``VERIFY_LE``,
+  ``VERIFY_GT`` and ``VERIFY_GE``, which print both operands on failure.
+* Minor: Add ``verify::print`` and ``verify::printer``, with support for
+  standard containers, pairs, tuples and optionals.
+* Minor: Remove the GCC Oldest and Clang Oldest CI builds.
+* Minor: Add ``verify_benchmark``, measuring the cost of a passing ``VERIFY``
+  per backend, and ``benchmark/run_remote.sh`` to run it on an aarch64 host
+  such as a Raspberry Pi.
 
 6.3.0
 -----

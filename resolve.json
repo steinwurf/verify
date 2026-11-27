@@ -1,25 +1,20 @@
 [
     {
+        "name": "fmt",
+        "resolver": "git",
+        "method": "semver",
+        "major": 5,
+        "sources": [
+            "github.com/steinwurf/fmt.git"
+        ]
+    },
+    {
         "name": "gtest",
         "resolver": "git",
         "internal": true,
         "method": "semver",
         "major": 6,
         "source": "github.com/steinwurf/gtest.git"
-    },
-    {
-        "name": "libassert-source",
-        "resolver": "git",
-        "method": "checkout",
-        "checkout": "v2.2.1",
-        "source": "github.com:jeremy-rifkin/libassert.git"
-    },
-    {
-        "name": "zlib-source",
-        "resolver": "git",
-        "method": "checkout",
-        "checkout": "51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf",
-        "source": "github.com/madler/zlib.git"
     },
     {
         "name": "toolchains",

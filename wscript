@@ -9,25 +9,10 @@ def options(ctx):
 
     ctx.load("cmake")
 
-    opts = ctx.add_option_group("Verify Options")
-
-    opts.add_option(
-        "--no_libassert",
-        default=False,
-        dest="no_libassert",
-        action="store_true",
-        help="Whether to not use libassert when building verify",
-    )
-
 
 def configure(ctx):
 
     ctx.load("cmake")
-
-    if ctx.options.no_libassert:
-        ctx.env.CMAKE_CONFIGURE_ARGS += [
-            "-DSTEINWURF_LIBASSERT=OFF",
-        ]
 
     if ctx.is_toplevel():
         ctx.cmake_configure()
