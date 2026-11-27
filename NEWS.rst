@@ -6,6 +6,10 @@ every change, see the git log.
 
 Latest
 ------
+* tbd
+
+7.0.0
+-----
 * Major: Remove the libassert backend and the libassert and zlib
   dependencies. A passing libassert ``VERIFY`` was 1.4-2.4x slower than
   ``assert()`` on x86 and up to 23x slower on a Raspberry Pi 5. The waf option
