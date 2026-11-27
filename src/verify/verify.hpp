@@ -20,20 +20,11 @@
 
 #ifdef NDEBUG
 
-// Disabled: nothing is evaluated, but everything is still compiled, so
-// conditions, comparisons and printability of extra arguments are checked
-// in every build type, and variables only used in verifies are not unused.
-#include "detail/fail.hpp"
-
-#define VERIFY_IMPL(...) \
-    static_cast<void>(false ? ::verify::detail::unused(__VA_ARGS__) : 0)
-#define VERIFY_CMP_IMPL(macro, op, lhs, rhs) \
-    static_cast<void>(                       \
-        false ? ::verify::detail::unused((lhs)op(rhs), (lhs), (rhs)) : 0)
-#define VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, ...)                      \
-    static_cast<void>(false ? ::verify::detail::unused((lhs)op(rhs), (lhs), \
-                                                       (rhs), __VA_ARGS__)  \
-                            : 0)
+// Disabled: the verifies are removed, like assert() under NDEBUG. Nothing is
+// evaluated and the arguments are not compiled.
+#define VERIFY_IMPL(...) static_cast<void>(0)
+#define VERIFY_CMP_IMPL(macro, op, lhs, rhs) static_cast<void>(0)
+#define VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, ...) static_cast<void>(0)
 
 #elif defined(STEINWURF_VERIFY_USE_CASSERT)
 #include "backends/assert.hpp"
@@ -74,12 +65,10 @@
 #define __VERIFY_CMP_N(macro, op, lhs, rhs, ...) \
     VERIFY_CMP_IMPL_ARGS(macro, op, lhs, rhs, __VA_ARGS__)
 
-// VERIFY_DEBUG: VERIFY when WURFDEBUG is defined, otherwise disabled (but
-// still compiled, like VERIFY under NDEBUG).
+// VERIFY_DEBUG: VERIFY when WURFDEBUG is defined, otherwise removed (like
+// VERIFY under NDEBUG).
 #if defined(WURFDEBUG)
 #define VERIFY_DEBUG(...) VERIFY(__VA_ARGS__)
 #else
-#include "detail/fail.hpp"
-#define VERIFY_DEBUG(...) \
-    static_cast<void>(false ? ::verify::detail::unused(__VA_ARGS__) : 0)
+#define VERIFY_DEBUG(...) static_cast<void>(0)
 #endif

@@ -125,10 +125,11 @@ left out.
 Disabled verifies
 ~~~~~~~~~~~~~~~~~
 
-With ``NDEBUG`` defined, ``VERIFY`` and the comparison macros evaluate nothing
-and generate no code, but they are still compiled. Conditions must still be
-valid, values must still be printable, and variables that are only used in
-verifies do not trigger unused-variable warnings. The same holds for
+With ``NDEBUG`` defined, ``VERIFY`` and the comparison macros are removed, like
+``assert()``: nothing is evaluated and the arguments are not compiled. Keep
+conditions and extra arguments free of side effects, as they will not run in
+these builds. A variable that is only used in verifies can trigger an
+unused-variable warning; mark it ``[[maybe_unused]]``. The same holds for
 ``VERIFY_DEBUG`` when it is disabled.
 
 VERIFY_DEBUG

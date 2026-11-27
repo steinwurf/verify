@@ -184,18 +184,5 @@ compare_failed(const char* macro, const char* file, int line,
     fail_compare<A, B, Args...>(macro, file, line, function, lhs_name, op,
                                 rhs_name, lhs, rhs, names, args...);
 }
-
-/// Used when VERIFY is disabled (NDEBUG, or VERIFY_DEBUG in release): called
-/// in a branch that is never taken, so nothing is evaluated, but the condition
-/// must still compile, every value must be printable, and variables used only
-/// in verifies do not trigger unused-variable warnings.
-template <class Condition, class... Args>
-constexpr int unused(const Condition&, const Args&...)
-{
-    static_assert(std::is_constructible_v<bool, const Condition&>,
-                  "The VERIFY condition must be convertible to bool");
-    (static_cast<void>(&verify::print<Args>), ...);
-    return 0;
-}
 }
 }
