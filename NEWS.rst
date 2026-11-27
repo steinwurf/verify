@@ -34,6 +34,7 @@ Latest
   ``VERIFY_GT`` and ``VERIFY_GE``, which print both operands on failure.
 * Minor: Add ``verify::print`` and ``verify::printer``, with support for
   standard containers, pairs, tuples and optionals.
+* Minor: Remove the GCC Oldest and Clang Oldest CI builds.
 * Minor: Add ``verify_benchmark``, measuring the cost of a passing ``VERIFY``
   per backend, and ``benchmark/run_remote.sh`` to run it on an aarch64 host
   such as a Raspberry Pi.
